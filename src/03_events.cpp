@@ -20,7 +20,7 @@ bool init() {
             SDL_WINDOWPOS_UNDEFINED,
             SCREEN_WIDTH,
             SCREEN_HEIGHT,
-            SDL_WINDOW_SHOWN);
+            SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
     if (NULL == gWindow) {
         printf("Error creating window: %s\n", SDL_GetError());
         return false;
