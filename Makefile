@@ -2,7 +2,7 @@ CPPC = g++
 FLAGS = -g -pedantic -Wall -Wextra # -Werror
 SRC = src
 BIN = bin
-ALL = $(BIN)/hello $(BIN)/01_hello_SDL $(BIN)/02_image
+ALL = $(BIN)/hello $(BIN)/01_hello_SDL $(BIN)/02_image $(BIN)/03_events
 
 all: $(ALL)
 
@@ -14,6 +14,9 @@ $(BIN)/01_hello_SDL: $(SRC)/01_hello_SDL.cpp
 
 $(BIN)/02_image: $(SRC)/02_image.cpp
 	$(CPPC) $(FLAGS) -o $(BIN)/02_image -lSDL2 $(SRC)/02_image.cpp
+
+$(BIN)/03_events: $(SRC)/03_events.cpp
+	$(CPPC) $(FLAGS) -o $(BIN)/03_events -lSDL2 $(SRC)/03_events.cpp
 
 clean:
 	rm -f $(ALL)
