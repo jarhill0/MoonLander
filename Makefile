@@ -1,6 +1,6 @@
 CPPC = g++
 FLAGS = -g -pedantic -Wall -Wextra # -Werror
-SDLFLAGS = `pkg-config --cflags sdl2`
+SDLFLAGS = `pkg-config --cflags sdl2` `pkg-config --libs sdl2`
 SRC = src
 BIN = bin
 ALL = $(BIN)/hello $(BIN)/01_hello_SDL $(BIN)/02_image $(BIN)/03_events $(BIN)/04_keys
