@@ -1,0 +1,17 @@
+The gui/ML programs will have the
+int main();
+method. 
+
+Arrow keys wilcontrol right/left rotator jets, and the upward jet. These are represented by:
+void rightArrowDown();
+void rightArrowUp();
+void leftArrowdDown();
+void leftArrowUp();
+void upArrowDown();
+void upArrowUp();
+
+in the main program. The main program calls
+void setFuelLevel(int fuel);
+to
+
+
