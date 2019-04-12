@@ -1,8 +1,6 @@
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
 
-#include <memory>
-
 struct GameState {
     double fuel;
 
@@ -29,8 +27,7 @@ struct InputState {
 class GameEngine {
     public:
         GameEngine();  // constructor
-        std::unique_ptr<struct GameState> step(
-                std::unique_ptr<struct InputState> const &input);
+        struct GameState step(struct InputState input);
     private:
         double fuel;
 

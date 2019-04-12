@@ -1,7 +1,5 @@
 #include "GameEngine.h"
-#include <memory>
 #include <iostream>
-
 
 // Constructor
 GameEngine::GameEngine() {
@@ -19,8 +17,8 @@ GameEngine::GameEngine() {
 }
 
 // Step
-std::unique_ptr<struct GameState> GameEngine::step(
-                std::unique_ptr<struct InputState> const &input) {
-    std::cout << "main: " << input->mainThruster << "\n";
-    return std::unique_ptr<struct GameState>(new struct GameState());
+struct GameState GameEngine::step(struct InputState input) {
+    std::cout << "main: " << input.mainThruster << "\n";
+    GameState gameState = {};
+    return gameState;
 }
