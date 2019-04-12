@@ -1,14 +1,13 @@
 GUI - user interface (aka SDL)
 ML - the machine learning program
 GE - the game
-PE - the physics engine
 
 The GUI and the ML are asynchronous. They both contain main methods.
 
 To begin, the GE initializes/resets any relevant fields.
 
 While the game is not over:
-  ML/GUI will pass an input to the GE.
+  ML/GUI will pass inputs to the GE
   GE calls ->
     GameState step(InputState input); // defined in GE
 
