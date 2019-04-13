@@ -1,3 +1,6 @@
+# Binaries directory
+bin/
+
 # Prerequisites
 *.d
 
