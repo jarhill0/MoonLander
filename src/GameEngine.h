@@ -8,10 +8,10 @@ struct GameState {
     double shipXPos;  // relative to landing pad; positive or negative
     double shipYVelocity;  // negative means approaching the pad
     double shipXvelocity;
-    double shipRotation; /* in DEGREES, where 0 is vertical, 90 is
-                            horizontal with nose pointing right, -90 is
-                            horizontal with nose pointing left, and +180
-                            and -180 are nose pointing down */
+    double shipRotation; /* in RADIANS, where PI/2 is vertical, 0 is
+                            horizontal with nose pointing right, PI is
+                            horizontal with nose pointing left, and 2*PI
+                            is nose pointing down */
     double shipAngularVelocity;
 
     bool gameOver;
