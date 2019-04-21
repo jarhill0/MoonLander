@@ -1,9 +1,10 @@
 CPPC = g++
 FLAGS = -g -pedantic -Wall -Wextra # -Werror
 SDLFLAGS = `pkg-config --cflags --libs sdl2`
+SDLIMGFLAGS = `pkg-config --cflags --libs sdl2_image`
 SRC = src
 BIN = bin
-ALL = $(BIN)/hello $(BIN)/01_hello_SDL $(BIN)/02_image $(BIN)/03_events $(BIN)/04_keys
+ALL = $(BIN)/hello $(BIN)/01_hello_SDL $(BIN)/02_image $(BIN)/03_events $(BIN)/04_keys $(BIN)/06_png
 
 all: $(ALL)
 
@@ -21,6 +22,9 @@ $(BIN)/03_events: $(SRC)/03_events.cpp
 
 $(BIN)/04_keys: $(SRC)/04_keys.cpp
 	$(CPPC) $(FLAGS) $(SDLFLAGS) -o $(BIN)/04_keys -lSDL2 $(SRC)/04_keys.cpp
+
+$(BIN)/06_png: $(SRC)/06_png.cpp
+	$(CPPC) $(FLAGS) $(SDLFLAGS) $(SDLIMGFLAGS) -o $(BIN)/06_png -lSDL2 $(SRC)/06_png.cpp
 
 clean:
 	rm -f $(ALL)
