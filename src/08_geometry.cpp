@@ -69,33 +69,46 @@ int main () {
             if (SDL_QUIT == e.type) {
                 quit = true;
                 break;
+            } else if (SDL_WINDOWEVENT == e.type &&
+                    SDL_WINDOWEVENT_SIZE_CHANGED == e.window.event) {
+                // puts("window size changed");
+                SDL_DestroyRenderer(gRenderer);
+                gRenderer = SDL_CreateRenderer(gWindow, -1,
+                        SDL_RENDERER_ACCELERATED);
+                if (NULL == gRenderer) {
+                    quit = true;
+                    break;
+                }
             }
         }
+
+        int width, height;
+        SDL_GL_GetDrawableSize(gWindow, &width, &height);
 
         SDL_SetRenderDrawColor(gRenderer, 0xff, 0xff, 0xff, 0xff);
         SDL_RenderClear(gRenderer);
 
         {
-            SDL_Rect fillRect = {SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4,
-                SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
+            SDL_Rect fillRect = {width / 4, height / 4,
+                width / 2, height / 2};
             SDL_SetRenderDrawColor(gRenderer, 0xff, 0x00, 0x00, 0xff);
             SDL_RenderFillRect(gRenderer, &fillRect);
         }
 
         {
-            SDL_Rect outlineRect = {SCREEN_WIDTH / 6, SCREEN_HEIGHT / 6,
-                SCREEN_WIDTH * 2 / 3, SCREEN_HEIGHT * 2 / 3};
+            SDL_Rect outlineRect = {width / 6, height / 6,
+                width * 2 / 3, height * 2 / 3};
             SDL_SetRenderDrawColor(gRenderer, 0x00, 0xff, 0x00, 0x00);
             SDL_RenderDrawRect(gRenderer, &outlineRect);
         }
 
         SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0xff, 0xff);
-        SDL_RenderDrawLine(gRenderer, 0, SCREEN_HEIGHT / 2, SCREEN_WIDTH,
-                SCREEN_HEIGHT / 2);
+        SDL_RenderDrawLine(gRenderer, 0, height / 2, width,
+                height / 2);
 
         SDL_SetRenderDrawColor(gRenderer, 0xff, 0xff, 0x00, 0xff);
-        for (int i = 0; i < SCREEN_HEIGHT; i += 4)
-            SDL_RenderDrawPoint(gRenderer, SCREEN_WIDTH / 2, i);
+        for (int i = 0; i < height; i += 4)
+            SDL_RenderDrawPoint(gRenderer, width / 2, i);
 
         SDL_RenderPresent(gRenderer);
     }
