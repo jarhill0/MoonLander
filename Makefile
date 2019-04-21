@@ -14,7 +14,7 @@ $(BIN):
 $(OBJ):
 	mkdir -p $(OBJ)
 
-$(OBJ)/GameEngine.o: $(SRC)/GameEngine.cpp $(SRC)/GameEngine.h
+$(OBJ)/GameEngine.o: $(SRC)/GameEngine.cpp $(SRC)/GameEngine.h $(SRC)/const.h
 	$(CPPC) $(FLAGS) -c -o $(OBJ)/GameEngine.o $(SRC)/GameEngine.cpp
 
 $(OBJ)/CLIGame.o: $(SRC)/CLIGame.cpp $(SRC)/GameEngine.h
