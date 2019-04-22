@@ -14,7 +14,7 @@ $(BIN):
 $(OBJ):
 	mkdir -p $(OBJ)
 
-$(OBJ)/GameEngine.o: $(SRC)/GameEngine.cpp $(SRC)/GameEngine.h
+$(OBJ)/GameEngine.o: $(SRC)/GameEngine.cpp $(SRC)/GameEngine.h $(SRC)/const.h
 	$(CPPC) $(FLAGS) -c -o $(OBJ)/GameEngine.o $(SRC)/GameEngine.cpp
 
 $(OBJ)/CLIGame.o: $(SRC)/CLIGame.cpp $(SRC)/GameEngine.h
@@ -24,5 +24,5 @@ $(BIN)/CLIGame: $(OBJ)/GameEngine.o $(OBJ)/CLIGame.o
 	$(CPPC) $(FLAGS) -o $(BIN)/CLIGame $(OBJ)/GameEngine.o $(OBJ)/CLIGame.o
 
 clean:
-	rm -f $(ALL)
-	rm -rf $(BIN)/*.dSYM $(OBJ)/*.o
+	rm -f $(ALL) $(OBJ)/*.o
+	rm -rf $(BIN)/*.dSYM

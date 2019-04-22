@@ -1,3 +1,10 @@
+/* Expose the game engine.
+ *
+ * Author: Joey Rees-Hill
+ *
+ * Date: April 2019
+ */
+
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
 
@@ -7,11 +14,11 @@ struct GameState {
     double shipYPos;  // relative to landing pad; generally positive
     double shipXPos;  // relative to landing pad; positive or negative
     double shipYVelocity;  // negative means approaching the pad
-    double shipXvelocity;
-    double shipRotation; /* in DEGREES, where 0 is vertical, 90 is
-                            horizontal with nose pointing right, -90 is
-                            horizontal with nose pointing left, and +180
-                            and -180 are nose pointing down */
+    double shipXVelocity;
+    double shipRotation; /* in RADIANS, where PI/2 is vertical, 0 is
+                            horizontal with nose pointing right, PI is
+                            horizontal with nose pointing left, and 2*PI
+                            is nose pointing down */
     double shipAngularVelocity;
 
     bool gameOver;
@@ -27,7 +34,7 @@ struct InputState {
 class GameEngine {
     public:
         GameEngine();  // constructor
-        struct GameState step(struct InputState input);
+        GameState step(InputState input);
     private:
         double fuel;
 
@@ -40,6 +47,9 @@ class GameEngine {
         double shipAngVel;
 
         bool gameFinished;
+
+        void applyVelocity(void);
+        GameState makeState(double);
 };
 
 #endif
