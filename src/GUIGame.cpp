@@ -26,11 +26,15 @@ class Sprite {
         void free(void);
         int getWidth(void);
         int getHeight(void);
+        bool switchRenderer(SDL_Renderer*);
         SDL_Texture *texture;
 
     private:
         int width;
         int height;
+        SDL_Surface *loadedSurface;
+        void freeSurface(void);
+        void freeTexture(void);
 };
 
 class GameGUI {
@@ -43,6 +47,7 @@ class GameGUI {
         bool loadMedia(void);
         void renderSprite(Sprite*, int, int, double = 0.0);
         void drawFrame(GameState);
+        bool handleResize();
 
         GameEngine engine;
         SDL_Window *gameWindow;
@@ -129,6 +134,13 @@ void GameGUI::gameLoop() {
             if (SDL_QUIT == ev.type) {
                 quit = true;
                 break;
+            } else if (SDL_WINDOWEVENT == ev.type &&
+                    SDL_WINDOWEVENT_SIZE_CHANGED == ev.window.event) {
+                if (!handleResize()) {
+                    puts("Error handling resize!");
+                    quit = true;
+                    break;
+                }
             }
         }
 
@@ -147,6 +159,18 @@ void GameGUI::gameLoop() {
         }
         frameStartTime = SDL_GetTicks();
     }
+}
+
+bool GameGUI::handleResize() {
+    SDL_DestroyRenderer(gameRenderer);
+    gameRenderer = SDL_CreateRenderer(gameWindow, -1,
+            SDL_RENDERER_ACCELERATED);
+
+    if (NULL == gameRenderer)
+        return false;
+
+    return rocket->switchRenderer(gameRenderer)
+        && moonTile->switchRenderer(gameRenderer);
 }
 
 // Calculate x- and y-offsets for a rectangular sprite based on an elliptical
@@ -248,6 +272,7 @@ GameGUI::~GameGUI() {
 
 Sprite::Sprite() {
     texture = NULL;
+    loadedSurface = NULL;
     width = 0;
     height = 0;
 }
@@ -255,37 +280,58 @@ Sprite::Sprite() {
 bool Sprite::loadFile(std::string path, SDL_Renderer *renderer) {
     free();
 
-    SDL_Surface *loadedSurface = IMG_Load(path.c_str());
+    loadedSurface = IMG_Load(path.c_str());
     if (NULL == loadedSurface) {
         printf("Couldn't load image '%s'. Got error %s\n",
                 path.c_str(), IMG_GetError());
         return false;
     }
 
-    SDL_Texture *newTexture = NULL;
-    newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-    if (NULL == newTexture) {
-        printf("Unable to create texture from '%s'. Error: %s\n",
-                path.c_str(), SDL_GetError());
-        return false;
-    }
-
     width = loadedSurface->w;
     height = loadedSurface->h;
 
-    SDL_FreeSurface(loadedSurface);
+    return switchRenderer(renderer);
+}
+
+bool Sprite::switchRenderer(SDL_Renderer *renderer) {
+    freeTexture();
+
+    if (NULL == loadedSurface) {
+        printf("Cannot create texture from null surface.");
+        return false;
+    }
+
+    SDL_Texture *newTexture = NULL;
+    newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    if (NULL == newTexture) {
+        printf("Unable to create texture. Error: %s\n", SDL_GetError());
+        return false;
+    }
+
     texture = newTexture;
 
     return texture != NULL;
 }
 
-void Sprite::free() {
+void Sprite::freeSurface() {
+    if (loadedSurface != NULL) {
+        SDL_FreeSurface(loadedSurface);
+        loadedSurface = NULL;
+    }
+}
+
+void Sprite::freeTexture() {
     if (texture != NULL) {
         SDL_DestroyTexture(texture);
         texture = NULL;
-        width = 0;
-        height = 0;
     }
+}
+
+void Sprite::free() {
+    freeSurface();
+    freeTexture();
+    width = 0;
+    height = 0;
 }
 
 int Sprite::getWidth() {
