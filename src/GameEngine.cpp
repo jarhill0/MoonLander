@@ -25,32 +25,39 @@ GameEngine::GameEngine() {
 
 // Step
 GameState GameEngine::step(InputState input) {
-    double yAcc = -GRAV_ACC;
-    double xAcc = 0;
-    double angAcc = 0;
+    if (!gameFinished) {
+        double yAcc = -GRAV_ACC;
+        double xAcc = 0;
+        double angAcc = 0;
 
-    if (fuel > 0) {
-        if (input.mainThruster) {
-            fuel -= MAIN_THRUST_FUEL_USE;
-            xAcc += MAIN_THRUST_ACC * cos(shipRotation);
-            yAcc += MAIN_THRUST_ACC * sin(shipRotation);
+        if (fuel > 0) {
+            if (input.mainThruster) {
+                fuel -= MAIN_THRUST_FUEL_USE;
+                xAcc += MAIN_THRUST_ACC * cos(shipRotation);
+                yAcc += MAIN_THRUST_ACC * sin(shipRotation);
+            }
+
+            if (input.rotLeftThruster) {
+                fuel -= SIDE_THRUST_FUEL_USE;
+                angAcc += SIDE_THRUST_ACC;
+            }
+            if (input.rotRightThruster) {
+                fuel -= SIDE_THRUST_FUEL_USE;
+                angAcc -= SIDE_THRUST_ACC;
+            }
         }
 
-        if (input.rotLeftThruster) {
-            fuel -= SIDE_THRUST_FUEL_USE;
-            angAcc += SIDE_THRUST_ACC;
-        }
-        if (input.rotRightThruster) {
-            fuel -= SIDE_THRUST_FUEL_USE;
-            angAcc -= SIDE_THRUST_ACC;
+        shipAngVel += angAcc;
+        shipYVel += yAcc;
+        shipXVel += xAcc;
+
+        applyVelocity();
+
+        if (shipYPos <= 0) {
+            shipYPos = 0;
+            gameFinished = true;
         }
     }
-
-    shipAngVel += angAcc;
-    shipYVel += yAcc;
-    shipXVel += xAcc;
-
-    applyVelocity();
 
     return makeState(0);
 }

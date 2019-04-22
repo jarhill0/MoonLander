@@ -26,11 +26,15 @@ class Sprite {
         void free(void);
         int getWidth(void);
         int getHeight(void);
+        bool switchRenderer(SDL_Renderer*);
         SDL_Texture *texture;
 
     private:
         int width;
         int height;
+        SDL_Surface *loadedSurface;
+        void freeSurface(void);
+        void freeTexture(void);
 };
 
 class GameGUI {
@@ -43,6 +47,7 @@ class GameGUI {
         bool loadMedia(void);
         void renderSprite(Sprite*, int, int, double = 0.0);
         void drawFrame(GameState);
+        bool handleResize();
 
         GameEngine engine;
         SDL_Window *gameWindow;
@@ -129,6 +134,13 @@ void GameGUI::gameLoop() {
             if (SDL_QUIT == ev.type) {
                 quit = true;
                 break;
+            } else if (SDL_WINDOWEVENT == ev.type &&
+                    SDL_WINDOWEVENT_SIZE_CHANGED == ev.window.event) {
+                if (!handleResize()) {
+                    puts("Error handling resize!");
+                    quit = true;
+                    break;
+                }
             }
         }
 
@@ -149,6 +161,40 @@ void GameGUI::gameLoop() {
     }
 }
 
+bool GameGUI::handleResize() {
+    SDL_DestroyRenderer(gameRenderer);
+    gameRenderer = SDL_CreateRenderer(gameWindow, -1,
+            SDL_RENDERER_ACCELERATED);
+
+    if (NULL == gameRenderer)
+        return false;
+
+    return rocket->switchRenderer(gameRenderer)
+        && moonTile->switchRenderer(gameRenderer);
+}
+
+// Calculate x- and y-offsets for a rectangular sprite based on an elliptical
+// model.
+void ovalOffset(Sprite *sprite, double th, int *x_p, int *y_p) {
+    double w = sprite->getWidth() / 2.0;
+    double h = sprite->getHeight() / 2.0;
+    double cos_th = cos(th);
+    double sin_th = sin(th);
+
+    // based on https://math.stackexchange.com/questions/1889450/
+    // Finds the parametric point on the ellipse where y is maxed.
+    double t_max = atan2(w * cos_th, h * sin_th);
+    double cos_t = cos(t_max);
+    double sin_t = sin(t_max);
+    int x = h * cos_th * cos_t - w * sin_th * sin_t;
+    int y = h * sin_th * cos_t + w * cos_th * sin_t;
+
+    // we negate both offsets to get offsets for min y because ellipses
+    // are rotationally symmetric
+    *x_p = -x;
+    *y_p = -y;
+}
+
 void GameGUI::drawFrame(GameState gs) {
     SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0xff);
     SDL_RenderClear(gameRenderer);
@@ -160,8 +206,40 @@ void GameGUI::drawFrame(GameState gs) {
     }
 
     // draw rocket
-    int shipXPos = SCREEN_WIDTH / 2 + gs.shipXPos;
-    int shipYPos = baseline - gs.shipYPos;
+    /* So... fun stuff here.
+     *
+     * The game engine treats the ship as a point (with no dimensions).
+     * However, our pretty GUI draws the ship as a rectangle with dimensions.
+     * The game engine considers us to have hit the ground when the ship's y-
+     * position is 0. If we map the center of our ship graphic to the ship
+     * coordinates, then such a crash will result in half of the ship being
+     * "below ground," which isn't ideal.
+     *
+     * In this section, I dynamically decide which point of the ship graphic
+     * gets to be the singular point that the game engine treats as the ship.
+     * Rather than fixing this point in the center of the ship graphic as
+     * described above, we say that the "ship point" is the "lowest" point
+     * (that is, where the y coordinate is minimized)
+     * on an ellipse inscribed within the rectangular ship image.
+     *
+     * We start by defining the position as the center of the graphic,
+     * and then we use the ovalOffset() function to compute how we should
+     * offset our x and y coordinates so that the "ship point" ends up on the
+     * bottom of the ellipse.
+     *
+     * The end result of this all is that when we (crash) land on the moon,
+     * our ship visually collides with the ground much better.
+     *
+     * Note that this results in a little bit of "interesting" behavior when it
+     * comes to rotation of the ship, but this tradeoff is worth it.
+     */
+    int shipXPos = SCREEN_WIDTH / 2 + gs.shipXPos - rocket->getWidth() / 2;
+    int shipYPos = baseline - gs.shipYPos - rocket->getHeight() / 2;
+    int xOff, yOff;
+    ovalOffset(rocket, gs.shipRotation, &xOff, &yOff);
+    shipXPos += xOff;
+    shipYPos += yOff;
+    // convert rotation scheme from game engine to SDL2
     int shipRot = -((gs.shipRotation * 180 / M_PI) - 90);
     renderSprite(rocket, shipXPos, shipYPos, shipRot);
 
@@ -194,6 +272,7 @@ GameGUI::~GameGUI() {
 
 Sprite::Sprite() {
     texture = NULL;
+    loadedSurface = NULL;
     width = 0;
     height = 0;
 }
@@ -201,37 +280,58 @@ Sprite::Sprite() {
 bool Sprite::loadFile(std::string path, SDL_Renderer *renderer) {
     free();
 
-    SDL_Surface *loadedSurface = IMG_Load(path.c_str());
+    loadedSurface = IMG_Load(path.c_str());
     if (NULL == loadedSurface) {
         printf("Couldn't load image '%s'. Got error %s\n",
                 path.c_str(), IMG_GetError());
         return false;
     }
 
-    SDL_Texture *newTexture = NULL;
-    newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-    if (NULL == newTexture) {
-        printf("Unable to create texture from '%s'. Error: %s\n",
-                path.c_str(), SDL_GetError());
-        return false;
-    }
-
     width = loadedSurface->w;
     height = loadedSurface->h;
 
-    SDL_FreeSurface(loadedSurface);
+    return switchRenderer(renderer);
+}
+
+bool Sprite::switchRenderer(SDL_Renderer *renderer) {
+    freeTexture();
+
+    if (NULL == loadedSurface) {
+        printf("Cannot create texture from null surface.");
+        return false;
+    }
+
+    SDL_Texture *newTexture = NULL;
+    newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    if (NULL == newTexture) {
+        printf("Unable to create texture. Error: %s\n", SDL_GetError());
+        return false;
+    }
+
     texture = newTexture;
 
     return texture != NULL;
 }
 
-void Sprite::free() {
+void Sprite::freeSurface() {
+    if (loadedSurface != NULL) {
+        SDL_FreeSurface(loadedSurface);
+        loadedSurface = NULL;
+    }
+}
+
+void Sprite::freeTexture() {
     if (texture != NULL) {
         SDL_DestroyTexture(texture);
         texture = NULL;
-        width = 0;
-        height = 0;
     }
+}
+
+void Sprite::free() {
+    freeSurface();
+    freeTexture();
+    width = 0;
+    height = 0;
 }
 
 int Sprite::getWidth() {
