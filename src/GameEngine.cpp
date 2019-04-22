@@ -7,7 +7,6 @@
 
 #include "GameEngine.h"
 #include "const.h" // also includes math.h
-#include <iostream>
 
 // Constructor
 GameEngine::GameEngine() {
@@ -30,20 +29,21 @@ GameState GameEngine::step(InputState input) {
     double xAcc = 0;
     double angAcc = 0;
 
-    if (input.mainThruster) {
-        fuel -= MAIN_THRUST_FUEL_USE;
-        xAcc += MAIN_THRUST_ACC * cos(shipRotation);
-        yAcc += MAIN_THRUST_ACC * sin(shipRotation);
-        std::cout << "xAcc, yAcc: " << xAcc << ", " << yAcc << "\n";
-    }
+    if (fuel > 0) {
+        if (input.mainThruster) {
+            fuel -= MAIN_THRUST_FUEL_USE;
+            xAcc += MAIN_THRUST_ACC * cos(shipRotation);
+            yAcc += MAIN_THRUST_ACC * sin(shipRotation);
+        }
 
-    if (input.rotLeftThruster) {
-        fuel -= SIDE_THRUST_FUEL_USE;
-        angAcc += SIDE_THRUST_ACC;
-    }
-    if (input.rotRightThruster) {
-        fuel -= SIDE_THRUST_FUEL_USE;
-        angAcc -= SIDE_THRUST_ACC;
+        if (input.rotLeftThruster) {
+            fuel -= SIDE_THRUST_FUEL_USE;
+            angAcc += SIDE_THRUST_ACC;
+        }
+        if (input.rotRightThruster) {
+            fuel -= SIDE_THRUST_FUEL_USE;
+            angAcc -= SIDE_THRUST_ACC;
+        }
     }
 
     shipAngVel += angAcc;
