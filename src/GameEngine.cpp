@@ -21,6 +21,7 @@ GameEngine::GameEngine() {
     shipAngVel = START_ANG_VEL;
 
     gameFinished = false;
+    score = 0;
 }
 
 // Step
@@ -55,14 +56,14 @@ GameState GameEngine::step(InputState input) {
 
         if (shipYPos <= 0) {
             shipYPos = 0;
-            gameFinished = true;
+            calculateScore();
         }
     }
 
-    return makeState(0);
+    return makeState();
 }
 
-GameState GameEngine::makeState(double score) {
+GameState GameEngine::makeState() {
     return {
         fuel,  // fuel
         shipYPos,  // shipYPos
@@ -80,4 +81,14 @@ void GameEngine::applyVelocity() {
     shipYPos += shipYVel;
     shipXPos += shipXVel;
     shipRotation = fmod(shipRotation +  shipAngVel, 2 * M_PI);
+}
+
+double GameEngine::calculateScore() {
+    gameFinished = true;
+    score = 0.0;
+    
+    score += IMPACT_FRAC/(1+pow(shipYVel/6,2));
+    score += UPRIGHT_FRAC/(1+pow(shipYVel,2));
+
+    return score;
 }
