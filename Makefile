@@ -4,7 +4,7 @@ SDLFLAGS = `pkg-config --cflags --libs sdl2`
 SDLIMGFLAGS = `pkg-config --cflags --libs sdl2_image`
 SRC = src
 BIN = bin
-ALL = $(BIN)/hello $(BIN)/01_hello_SDL $(BIN)/02_image $(BIN)/03_events $(BIN)/04_keys $(BIN)/06_png $(BIN)/07_textures $(BIN)/08_geometry
+ALL = $(BIN)/hello $(BIN)/01_hello_SDL $(BIN)/02_image $(BIN)/03_events $(BIN)/04_keys $(BIN)/06_png $(BIN)/07_textures $(BIN)/08_geometry $(BIN)/10_transparency
 
 all: $(ALL)
 
@@ -31,6 +31,9 @@ $(BIN)/07_textures: $(SRC)/07_textures.cpp
 
 $(BIN)/08_geometry: $(SRC)/08_geometry.cpp
 	$(CPPC) $(FLAGS) $(SDLFLAGS) $(SDLIMGFLAGS) -o $(BIN)/08_geometry -lSDL2 $(SRC)/08_geometry.cpp
+
+$(BIN)/10_transparency: $(SRC)/10_transparency.cpp
+	$(CPPC) $(FLAGS) $(SDLFLAGS) $(SDLIMGFLAGS) -o $(BIN)/10_transparency -lSDL2 $(SRC)/10_transparency.cpp
 
 clean:
 	rm -f $(ALL)
