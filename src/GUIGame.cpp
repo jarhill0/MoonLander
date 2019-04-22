@@ -149,6 +149,28 @@ void GameGUI::gameLoop() {
     }
 }
 
+// Calculate x- and y-offsets for a rectangular sprite based on an elliptical
+// model.
+void ovalOffset(Sprite *sprite, double th, int *x_p, int *y_p) {
+    double w = sprite->getWidth() / 2.0;
+    double h = sprite->getHeight() / 2.0;
+    double cos_th = cos(th);
+    double sin_th = sin(th);
+
+    // based on https://math.stackexchange.com/questions/1889450/
+    // Finds the parametric point on the ellipse where y is maxed.
+    double t_max = atan2(w * cos_th, h * sin_th);
+    double cos_t = cos(t_max);
+    double sin_t = sin(t_max);
+    int x = h * cos_th * cos_t - w * sin_th * sin_t;
+    int y = h * sin_th * cos_t + w * cos_th * sin_t;
+
+    // we negate both offsets to get offsets for min y because ellipses
+    // are rotationally symmetric
+    *x_p = -x;
+    *y_p = -y;
+}
+
 void GameGUI::drawFrame(GameState gs) {
     SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0xff);
     SDL_RenderClear(gameRenderer);
@@ -160,8 +182,40 @@ void GameGUI::drawFrame(GameState gs) {
     }
 
     // draw rocket
-    int shipXPos = SCREEN_WIDTH / 2 + gs.shipXPos;
-    int shipYPos = baseline - gs.shipYPos;
+    /* So... fun stuff here.
+     *
+     * The game engine treats the ship as a point (with no dimensions).
+     * However, our pretty GUI draws the ship as a rectangle with dimensions.
+     * The game engine considers us to have hit the ground when the ship's y-
+     * position is 0. If we map the center of our ship graphic to the ship
+     * coordinates, then such a crash will result in half of the ship being
+     * "below ground," which isn't ideal.
+     *
+     * In this section, I dynamically decide which point of the ship graphic
+     * gets to be the singular point that the game engine treats as the ship.
+     * Rather than fixing this point in the center of the ship graphic as
+     * described above, we say that the "ship point" is the "lowest" point
+     * (that is, where the y coordinate is minimized)
+     * on an ellipse inscribed within the rectangular ship image.
+     *
+     * We start by defining the position as the center of the graphic,
+     * and then we use the ovalOffset() function to compute how we should
+     * offset our x and y coordinates so that the "ship point" ends up on the
+     * bottom of the ellipse.
+     *
+     * The end result of this all is that when we (crash) land on the moon,
+     * our ship visually collides with the ground much better.
+     *
+     * Note that this results in a little bit of "interesting" behavior when it
+     * comes to rotation of the ship, but this tradeoff is worth it.
+     */
+    int shipXPos = SCREEN_WIDTH / 2 + gs.shipXPos - rocket->getWidth() / 2;
+    int shipYPos = baseline - gs.shipYPos - rocket->getHeight() / 2;
+    int xOff, yOff;
+    ovalOffset(rocket, gs.shipRotation, &xOff, &yOff);
+    shipXPos += xOff;
+    shipYPos += yOff;
+    // convert rotation scheme from game engine to SDL2
     int shipRot = -((gs.shipRotation * 180 / M_PI) - 90);
     renderSprite(rocket, shipXPos, shipYPos, shipRot);
 
