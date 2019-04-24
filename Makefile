@@ -7,13 +7,17 @@ BIN = bin
 OBJ = obj
 ALL = $(BIN)/GUIGame
 
+ifneq ($(OS), Windows_NT)
+	DIR = -p
+endif
+
 all: $(OBJ) $(BIN) $(ALL)
 
 $(BIN):
-	mkdir -p $(BIN)
+	mkdir $(DIR) $(BIN)
 
 $(OBJ):
-	mkdir -p $(OBJ)
+	mkdir $(DIR) $(OBJ)
 
 $(OBJ)/GameEngine.o: $(SRC)/GameEngine.cpp $(SRC)/GameEngine.h $(SRC)/const.h
 	$(CPPC) $(FLAGS) -c -o $(OBJ)/GameEngine.o $(SRC)/GameEngine.cpp
