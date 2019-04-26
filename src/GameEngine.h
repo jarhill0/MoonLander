@@ -37,6 +37,7 @@ class GameEngine {
         GameState step(InputState input);
     private:
         double fuel;
+        double score;
 
         double shipYPos;
         double shipXPos;

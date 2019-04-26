@@ -86,9 +86,8 @@ void GameEngine::applyVelocity() {
 double GameEngine::calculateScore() {
     gameFinished = true;
     score = 0.0;
-    
     score += IMPACT_FRAC/(1+pow(shipYVel/6,2));
-    score += UPRIGHT_FRAC/(1+pow(shipYVel,2));
+    score += UPRIGHT_FRAC/(1+pow((shipRotation - M_PI / 2),2));
 
     return score;
 }

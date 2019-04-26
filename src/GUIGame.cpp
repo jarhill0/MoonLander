@@ -199,6 +199,9 @@ void GameGUI::drawFrame(GameState gs) {
     SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0xff);
     SDL_RenderClear(gameRenderer);
 
+    if (gs.gameOver)
+        printf("Score: %d\n", (int) gs.score);
+
     // draw moon surface
     int baseline = SCREEN_HEIGHT - moonTile->getHeight();
     for (int x = 0; x < SCREEN_WIDTH; x += moonTile->getWidth()) {
