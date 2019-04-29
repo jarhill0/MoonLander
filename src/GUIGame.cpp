@@ -251,8 +251,28 @@ void GameGUI::drawFrame(GameState gs) {
     SDL_SetRenderDrawColor(gameRenderer, 0x00, 0xe0, 0x10, 0xf0);
     SDL_Rect fillRect = {20 * xScale, 20 * yScale, (int) (gs.fuel * xScale),
         20 * yScale};
-    SDL_RenderFillRect(gameRenderer, &fillRect);
+    SDL_RenderFillRect(gameRenderer, &fillRect); 
 
+    // draw velocity bar
+    double totVelocity = hypot(gs.shipYVelocity, gs.shipXVelocity);
+    //TODO deal with this
+    double velocityThreshold = 3;
+    int barWidth = (int)((totVelocity / velocityThreshold) * 100 * xScale);
+    
+    int colorBase = 0xff - (0xff * (totVelocity / velocityThreshold));
+    if(colorBase < 0) {
+      colorBase = 0;
+      }
+
+    if(colorBase > 0xff){
+      colorBase = 0xff;
+    }
+    //printf("%d\n", colorBase);
+    SDL_SetRenderDrawColor(gameRenderer, 0xff - colorBase, colorBase, 0x00, 0xf0);
+    SDL_Rect velocityBarRect = {(width - (20 * xScale)) - barWidth, 20 * yScale, barWidth, 20 * yScale};    
+    SDL_RenderFillRect(gameRenderer, &velocityBarRect);
+    
+    
     SDL_RenderPresent(gameRenderer);
 }
 
