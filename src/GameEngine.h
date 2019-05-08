@@ -50,7 +50,7 @@ class GameEngine {
         bool gameFinished;
 
         void applyVelocity(void);
-        double calculateScore();
+        void calculateScore();
         GameState makeState();
 };
 

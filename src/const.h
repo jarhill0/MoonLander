@@ -26,10 +26,4 @@ const double SIDE_THRUST_ACC = 0.001;
 const double MAIN_THRUST_FUEL_USE = 0.1;
 const double SIDE_THRUST_FUEL_USE = 0.05;
 
-// The following are the fraction of the
-// score determined by various factors of the game
-
-const int IMPACT_FRAC = 50;
-const int UPRIGHT_FRAC = 50;
-
 #endif

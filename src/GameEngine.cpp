@@ -56,6 +56,7 @@ GameState GameEngine::step(InputState input) {
 
         if (shipYPos <= 0) {
             shipYPos = 0;
+            gameFinished = true;
             calculateScore();
         }
     }
@@ -83,11 +84,18 @@ void GameEngine::applyVelocity() {
     shipRotation = fmod(shipRotation +  shipAngVel, 2 * M_PI);
 }
 
-double GameEngine::calculateScore() {
-    gameFinished = true;
-    score = 0.0;
-    score += IMPACT_FRAC/(1+pow(shipYVel/6,2));
-    score += UPRIGHT_FRAC/(1+pow((shipRotation - M_PI / 2),2));
+void GameEngine::calculateScore() {
+    // all component values should be positive
+    double xDiff = shipXPos > 0 ? -shipXPos : -shipXPos;
+    xDiff /= 20;
+    double shipVel = sqrt(shipXVel * shipXVel + shipYVel * shipYVel);
+    shipVel *= 50;
+    double upright = shipRotation - M_PI / 2;
+    upright = upright > 0 ? upright : -upright;
+    upright *= 20;
+    double shipRotVel = shipAngVel;
+    shipRotVel *= 10;
 
-    return score;
+    double distFromPerfect = xDiff + shipVel + upright + shipRotVel;
+    score = fuel - (distFromPerfect * distFromPerfect) / 50;
 }
