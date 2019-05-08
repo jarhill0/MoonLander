@@ -54,6 +54,7 @@ class GameGUI {
         SDL_Renderer *gameRenderer;
         Sprite *rocket;
         Sprite *moonTile;
+        bool gameOver;
 };
 
 GameGUI::GameGUI() {
@@ -151,7 +152,8 @@ void GameGUI::gameLoop() {
             (bool) keysPressed[SDL_SCANCODE_RIGHT],  // right arrow
         };
 
-        drawFrame(engine.step(inp));
+        if (!gameOver)
+            drawFrame(engine.step(inp));
 
         int frameTicks = frameStartTime - SDL_GetTicks();
         if (frameTicks < TICKS_PER_FRAME) {
@@ -275,24 +277,31 @@ void GameGUI::drawFrame(GameState gs) {
     int barMax = 100;
     int barWidth = (int)((totVelocity / velocityThreshold) * 100 * xScale);
     if(barWidth  > barMax){
-      barWidth = barMax;
+        barWidth = barMax;
     } 
-    
+
     int colorBase = 0xff - (0xff * (totVelocity / velocityThreshold));
     if(colorBase < 0) {
-      colorBase = 0;
-      }
+        colorBase = 0;
+    }
 
     if(colorBase > 0xff){
-      colorBase = 0xff;
+        colorBase = 0xff;
     }
-    //printf("%d\n", colorBase);
-    SDL_SetRenderDrawColor(gameRenderer, 0xff - colorBase, colorBase, 0x00, 0xf0);
-    SDL_Rect velocityBarRect = {(width - (20 * xScale)) - barWidth, 20 * yScale, barWidth, 20 * yScale};    
+
+    SDL_SetRenderDrawColor(gameRenderer, 0xff - colorBase, colorBase,
+            0x00, 0xf0);
+    SDL_Rect velocityBarRect = {(width - (20 * xScale)) - barWidth,
+        20 * yScale, barWidth, 20 * yScale};
     SDL_RenderFillRect(gameRenderer, &velocityBarRect);
-    
-    
+
     SDL_RenderPresent(gameRenderer);
+
+    gameOver = gs.gameOver;
+    if (gameOver) {
+        int score = (int) gs.score > 0 ? gs.score : 0;
+        printf("Game over! Your score: %d\n", score);
+    }
 }
 
 GameGUI::~GameGUI() {
