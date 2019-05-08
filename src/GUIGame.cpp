@@ -419,8 +419,16 @@ int main(int argc, char *argv[]) {
     if (argc > 2) {
         if (!strcmp(argv[1], "-o")) {
             inpDump = fopen(argv[2], "w");
+            if (NULL == inpDump) {
+                fprintf(stderr, "Error opening file.\n");
+                return 1;
+            }
         } else if (!strcmp(argv[1], "-i")) {
             inpDump = fopen(argv[2], "r");
+            if (NULL == inpDump) {
+                fprintf(stderr, "Error opening file.\n");
+                return 1;
+            }
             readFromFile = true;
         }
     }
