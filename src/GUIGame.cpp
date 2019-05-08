@@ -292,12 +292,8 @@ void GameGUI::drawFrame(GameState gs) {
     // draw velocity bar
     double totVelocity = hypot(gs.shipYVelocity, gs.shipXVelocity);
     //TODO deal with this
-    double velocityThreshold = 5;
-    int barMax = 100;
+    double velocityThreshold = 3;
     int barWidth = (int)((totVelocity / velocityThreshold) * 100 * xScale);
-    if(barWidth  > barMax){
-        barWidth = barMax;
-    } 
 
     int colorBase = 0xff - (0xff * (totVelocity / velocityThreshold));
     if(colorBase < 0) {
