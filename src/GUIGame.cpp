@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "GameEngine.h"
+#include "BitBuffer.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -41,7 +42,7 @@ class GameGUI {
     public:
         GameGUI(void);
         ~GameGUI(void);
-        void gameLoop(void);
+        void gameLoop(FILE*, bool);
 
     private:
         bool loadMedia(void);
@@ -126,7 +127,10 @@ void GameGUI::renderSprite(Sprite *s, int x, int y, double rotation) {
             NULL, SDL_FLIP_NONE);
 }
 
-void GameGUI::gameLoop() {
+void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
+    bool dumpInp = (NULL != inpDump) && !inpFromFile;
+    BitBuffer buffer(inpDump);
+
     bool quit = false;
     SDL_Event ev;
     Uint32 frameStartTime = SDL_GetTicks();
@@ -145,21 +149,36 @@ void GameGUI::gameLoop() {
             }
         }
 
-        const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
-        InputState inp = {
-            (bool) keysPressed[SDL_SCANCODE_UP],  // up arrow
-            (bool) keysPressed[SDL_SCANCODE_LEFT],  // left arrow
-            (bool) keysPressed[SDL_SCANCODE_RIGHT],  // right arrow
-        };
+        if (!gameOver) {
+            InputState inp;
+            if (inpFromFile) {
+                inp = {buffer.getBit(), buffer.getBit(), buffer.getBit()};
+            } else {
+                const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
+                inp = {
+                    (bool) keysPressed[SDL_SCANCODE_UP],  // up arrow
+                    (bool) keysPressed[SDL_SCANCODE_LEFT],  // left arrow
+                    (bool) keysPressed[SDL_SCANCODE_RIGHT],  // right arrow
+                };
 
-        if (!gameOver)
+                if (dumpInp) {
+                    buffer.putBit(inp.mainThruster);
+                    buffer.putBit(inp.rotLeftThruster);
+                    buffer.putBit(inp.rotRightThruster);
+                }
+            }
+
             drawFrame(engine.step(inp));
+        }
 
         int frameTicks = frameStartTime - SDL_GetTicks();
         if (frameTicks < TICKS_PER_FRAME) {
             SDL_Delay(TICKS_PER_FRAME - frameTicks);
         }
         frameStartTime = SDL_GetTicks();
+    }
+    if (dumpInp) {
+        buffer.flush();
     }
 }
 
@@ -394,7 +413,18 @@ Sprite::~Sprite() {
     free();
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    FILE *inpDump = NULL;
+    bool readFromFile = false;
+    if (argc > 2) {
+        if (!strcmp(argv[1], "-o")) {
+            inpDump = fopen(argv[2], "w");
+        } else if (!strcmp(argv[1], "-i")) {
+            inpDump = fopen(argv[2], "r");
+            readFromFile = true;
+        }
+    }
+
     GameGUI game;
-    game.gameLoop();
+    game.gameLoop(inpDump, readFromFile);
 }
