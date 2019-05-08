@@ -204,6 +204,21 @@ void GameGUI::drawFrame(GameState gs) {
     for (int x = 0; x < SCREEN_WIDTH; x += moonTile->getWidth()) {
         renderSprite(moonTile, x, baseline);
     }
+    // draw landing pad
+    SDL_SetRenderDrawColor(gameRenderer, 0xff, 0x00, 0x00, 0xff);
+    {
+        int xScale, yScale;
+        {
+            int width, height;
+            SDL_GL_GetDrawableSize(gameWindow, &width, &height);
+            xScale = width / SCREEN_WIDTH;
+            yScale = height / SCREEN_HEIGHT;
+        }
+        SDL_RenderDrawLine(gameRenderer, xScale * SCREEN_WIDTH / 2,
+                yScale * SCREEN_HEIGHT,
+                xScale * SCREEN_WIDTH / 2,
+                yScale * (SCREEN_HEIGHT - moonTile->getHeight()));
+    }
 
     // draw rocket
     /* So... fun stuff here.

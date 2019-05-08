@@ -37,6 +37,7 @@ class GameEngine {
         GameState step(InputState input);
     private:
         double fuel;
+        double score;
 
         double shipYPos;
         double shipXPos;
@@ -49,7 +50,8 @@ class GameEngine {
         bool gameFinished;
 
         void applyVelocity(void);
-        GameState makeState(double);
+        void calculateScore();
+        GameState makeState();
 };
 
 #endif
