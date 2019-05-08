@@ -427,4 +427,8 @@ int main(int argc, char *argv[]) {
 
     GameGUI game;
     game.gameLoop(inpDump, readFromFile);
+    if (inpDump != NULL) {
+        fclose(inpDump);
+        inpDump = NULL;
+    }
 }
