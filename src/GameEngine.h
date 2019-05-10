@@ -35,6 +35,7 @@ class GameEngine {
     public:
         GameEngine();  // constructor
         GameState step(InputState input);
+        void setBounds(int, int, int);
     private:
         double fuel;
         double score;
@@ -46,6 +47,12 @@ class GameEngine {
         double shipYVel;
         double shipXVel;
         double shipAngVel;
+
+        bool boundsSet;
+        int leftBound;
+        int rightBound;
+        int topBound;
+        bool checkBounds();
 
         bool gameFinished;
 
