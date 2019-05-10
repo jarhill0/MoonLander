@@ -22,6 +22,11 @@ GameEngine::GameEngine() {
 
     gameFinished = false;
     score = 0;
+
+    boundsSet = false;
+    leftBound = 0;
+    rightBound = 0;
+    topBound = 0;
 }
 
 // Step
@@ -56,6 +61,10 @@ GameState GameEngine::step(InputState input) {
 
         if (shipYPos <= 0) {
             shipYPos = 0;
+            gameFinished = true;
+            calculateScore();
+        } else if (boundsSet && !checkBounds()) {
+            fuel = 0;
             gameFinished = true;
             calculateScore();
         }
@@ -95,7 +104,23 @@ void GameEngine::calculateScore() {
     upright *= 20;
     double shipRotVel = shipAngVel;
     shipRotVel *= 10;
+    double heightDifference = 6 * shipYPos;  // needed because bounds check
 
-    double distFromPerfect = xDiff + shipVel + upright + shipRotVel;
+    double distFromPerfect = xDiff + shipVel + upright + shipRotVel
+        + heightDifference;
     score = fuel - (distFromPerfect * distFromPerfect) / 50;
+}
+
+// Set a boundary, outside of which the game will end.
+void GameEngine::setBounds(int left, int right, int top) {
+    leftBound = left;
+    rightBound = right;
+    topBound = top;
+    boundsSet = true;
+}
+
+bool GameEngine::checkBounds() {
+    return shipXPos >= leftBound &&
+        shipXPos <= rightBound &&
+        shipYPos <= topBound;
 }

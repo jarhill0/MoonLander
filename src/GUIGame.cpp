@@ -40,7 +40,7 @@ class Sprite {
 
 class GameGUI {
     public:
-        GameGUI(void);
+        GameGUI(bool);
         ~GameGUI(void);
         void gameLoop(FILE*, bool);
 
@@ -58,7 +58,7 @@ class GameGUI {
         bool gameOver;
 };
 
-GameGUI::GameGUI() {
+GameGUI::GameGUI(bool bounded) {
     gameWindow = NULL;
     gameRenderer = NULL;
 
@@ -90,6 +90,11 @@ GameGUI::GameGUI() {
     if (!loadMedia()) {
         puts("Couldn't load media!");
         exit(1);
+    }
+
+    if (bounded) {
+        engine.setBounds(-(SCREEN_WIDTH / 2), SCREEN_WIDTH / 2,
+                SCREEN_HEIGHT - moonTile->getHeight());
     }
 }
 
@@ -320,6 +325,7 @@ void GameGUI::drawFrame(GameState gs) {
     if (gameOver) {
         int score = (int) gs.score > 0 ? gs.score : 0;
         printf("Game over! Your score: %d\n", score);
+        printf("Real score: %f\n", gs.score);
     }
 }
 
@@ -416,24 +422,31 @@ Sprite::~Sprite() {
 int main(int argc, char *argv[]) {
     FILE *inpDump = NULL;
     bool readFromFile = false;
-    if (argc > 2) {
-        if (!strcmp(argv[1], "-o")) {
-            inpDump = fopen(argv[2], "w");
+    bool bounded = false;
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "-o")) {
+            if (i + 1 < argc) {
+                inpDump = fopen(argv[i + 1], "w");
+            }
             if (NULL == inpDump) {
                 fprintf(stderr, "Error opening file.\n");
                 return 1;
             }
-        } else if (!strcmp(argv[1], "-i")) {
-            inpDump = fopen(argv[2], "r");
+        } else if (!strcmp(argv[i], "-i")) {
+            if (i + 1 < argc) {
+                inpDump = fopen(argv[i + 1], "r");
+            }
             if (NULL == inpDump) {
                 fprintf(stderr, "Error opening file.\n");
                 return 1;
             }
             readFromFile = true;
+        } else if (!strcmp(argv[i], "-b")) {
+            bounded = true;
         }
     }
 
-    GameGUI game;
+    GameGUI game(bounded);
     game.gameLoop(inpDump, readFromFile);
     if (inpDump != NULL) {
         fclose(inpDump);
