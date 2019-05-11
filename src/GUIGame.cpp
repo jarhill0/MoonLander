@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "GameEngine.h"
+#include "BitBuffer.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -39,9 +40,9 @@ class Sprite {
 
 class GameGUI {
     public:
-        GameGUI(void);
+        GameGUI(bool);
         ~GameGUI(void);
-        void gameLoop(void);
+        void gameLoop(FILE*, bool);
 
     private:
         bool loadMedia(void);
@@ -54,9 +55,10 @@ class GameGUI {
         SDL_Renderer *gameRenderer;
         Sprite *rocket;
         Sprite *moonTile;
+        bool gameOver;
 };
 
-GameGUI::GameGUI() {
+GameGUI::GameGUI(bool bounded) {
     gameWindow = NULL;
     gameRenderer = NULL;
 
@@ -88,6 +90,11 @@ GameGUI::GameGUI() {
     if (!loadMedia()) {
         puts("Couldn't load media!");
         exit(1);
+    }
+
+    if (bounded) {
+        engine.setBounds(-(SCREEN_WIDTH / 2), SCREEN_WIDTH / 2,
+                SCREEN_HEIGHT - moonTile->getHeight());
     }
 }
 
@@ -125,7 +132,10 @@ void GameGUI::renderSprite(Sprite *s, int x, int y, double rotation) {
             NULL, SDL_FLIP_NONE);
 }
 
-void GameGUI::gameLoop() {
+void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
+    bool dumpInp = (NULL != inpDump) && !inpFromFile;
+    BitBuffer buffer(inpDump);
+
     bool quit = false;
     SDL_Event ev;
     Uint32 frameStartTime = SDL_GetTicks();
@@ -144,20 +154,36 @@ void GameGUI::gameLoop() {
             }
         }
 
-        const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
-        InputState inp = {
-            (bool) keysPressed[SDL_SCANCODE_UP],  // up arrow
-            (bool) keysPressed[SDL_SCANCODE_LEFT],  // left arrow
-            (bool) keysPressed[SDL_SCANCODE_RIGHT],  // right arrow
-        };
+        if (!gameOver) {
+            InputState inp;
+            if (inpFromFile) {
+                inp = {buffer.getBit(), buffer.getBit(), buffer.getBit()};
+            } else {
+                const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
+                inp = {
+                    (bool) keysPressed[SDL_SCANCODE_UP],  // up arrow
+                    (bool) keysPressed[SDL_SCANCODE_LEFT],  // left arrow
+                    (bool) keysPressed[SDL_SCANCODE_RIGHT],  // right arrow
+                };
 
-        drawFrame(engine.step(inp));
+                if (dumpInp) {
+                    buffer.putBit(inp.mainThruster);
+                    buffer.putBit(inp.rotLeftThruster);
+                    buffer.putBit(inp.rotRightThruster);
+                }
+            }
+
+            drawFrame(engine.step(inp));
+        }
 
         int frameTicks = frameStartTime - SDL_GetTicks();
         if (frameTicks < TICKS_PER_FRAME) {
             SDL_Delay(TICKS_PER_FRAME - frameTicks);
         }
         frameStartTime = SDL_GetTicks();
+    }
+    if (dumpInp) {
+        buffer.flush();
     }
 }
 
@@ -203,6 +229,21 @@ void GameGUI::drawFrame(GameState gs) {
     int baseline = SCREEN_HEIGHT - moonTile->getHeight();
     for (int x = 0; x < SCREEN_WIDTH; x += moonTile->getWidth()) {
         renderSprite(moonTile, x, baseline);
+    }
+    // draw landing pad
+    SDL_SetRenderDrawColor(gameRenderer, 0xff, 0x00, 0x00, 0xff);
+    {
+        int xScale, yScale;
+        {
+            int width, height;
+            SDL_GL_GetDrawableSize(gameWindow, &width, &height);
+            xScale = width / SCREEN_WIDTH;
+            yScale = height / SCREEN_HEIGHT;
+        }
+        SDL_RenderDrawLine(gameRenderer, xScale * SCREEN_WIDTH / 2,
+                yScale * SCREEN_HEIGHT,
+                xScale * SCREEN_WIDTH / 2,
+                yScale * (SCREEN_HEIGHT - moonTile->getHeight()));
     }
 
     // draw rocket
@@ -256,28 +297,32 @@ void GameGUI::drawFrame(GameState gs) {
     // draw velocity bar
     double totVelocity = hypot(gs.shipYVelocity, gs.shipXVelocity);
     //TODO deal with this
-    double velocityThreshold = 5;
-    int barMax = 100;
+    double velocityThreshold = 3;
     int barWidth = (int)((totVelocity / velocityThreshold) * 100 * xScale);
-    if(barWidth  > barMax){
-      barWidth = barMax;
-    } 
-    
+
     int colorBase = 0xff - (0xff * (totVelocity / velocityThreshold));
     if(colorBase < 0) {
-      colorBase = 0;
-      }
+        colorBase = 0;
+    }
 
     if(colorBase > 0xff){
-      colorBase = 0xff;
+        colorBase = 0xff;
     }
-    //printf("%d\n", colorBase);
-    SDL_SetRenderDrawColor(gameRenderer, 0xff - colorBase, colorBase, 0x00, 0xf0);
-    SDL_Rect velocityBarRect = {(width - (20 * xScale)) - barWidth, 20 * yScale, barWidth, 20 * yScale};    
+
+    SDL_SetRenderDrawColor(gameRenderer, 0xff - colorBase, colorBase,
+            0x00, 0xf0);
+    SDL_Rect velocityBarRect = {(width - (20 * xScale)) - barWidth,
+        20 * yScale, barWidth, 20 * yScale};
     SDL_RenderFillRect(gameRenderer, &velocityBarRect);
-    
-    
+
     SDL_RenderPresent(gameRenderer);
+
+    gameOver = gs.gameOver;
+    if (gameOver) {
+        int score = (int) gs.score > 0 ? gs.score : 0;
+        printf("Game over! Your score: %d\n", score);
+        printf("Real score: %f\n", gs.score);
+    }
 }
 
 GameGUI::~GameGUI() {
@@ -370,7 +415,37 @@ Sprite::~Sprite() {
     free();
 }
 
-int main() {
-    GameGUI game;
-    game.gameLoop();
+int main(int argc, char *argv[]) {
+    FILE *inpDump = NULL;
+    bool readFromFile = false;
+    bool bounded = false;
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "-o")) {
+            if (i + 1 < argc) {
+                inpDump = fopen(argv[i + 1], "w");
+            }
+            if (NULL == inpDump) {
+                fprintf(stderr, "Error opening file.\n");
+                return 1;
+            }
+        } else if (!strcmp(argv[i], "-i")) {
+            if (i + 1 < argc) {
+                inpDump = fopen(argv[i + 1], "r");
+            }
+            if (NULL == inpDump) {
+                fprintf(stderr, "Error opening file.\n");
+                return 1;
+            }
+            readFromFile = true;
+        } else if (!strcmp(argv[i], "-b")) {
+            bounded = true;
+        }
+    }
+
+    GameGUI game(bounded);
+    game.gameLoop(inpDump, readFromFile);
+    if (inpDump != NULL) {
+        fclose(inpDump);
+        inpDump = NULL;
+    }
 }
