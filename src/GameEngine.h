@@ -28,20 +28,21 @@ struct GameState {
 class InputState {
     public:
         bool mainThruster;  // up arrow
-	bool rotLeftThruster;  // the thruster on the right that rotates ship left
-	bool rotRightThruster;
-	InputState();
-	InputState(bool m, bool l, bool r);
-	void print(void);
+        bool rotLeftThruster;  // the thruster on the right that rotates ship left
+        bool rotRightThruster;
+        InputState();
+        InputState(bool m, bool l, bool r);
+        void print(void);
 };
 
 class GameEngine {
     public:
         GameEngine();  // constructor
         GameState step(InputState input);
+        GameState getState();  // get the state without stepping the engine
         void setBounds(int, int, int);
-	void setDefaultFields(void);
-	
+        void setDefaultFields(void);
+
     private:
         double fuel;
         double score;

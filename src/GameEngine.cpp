@@ -1,4 +1,3 @@
-
 /* Provide the game engine.
  *
  * Author: Joey Rees-Hill
@@ -77,7 +76,7 @@ GameState GameEngine::step(InputState input) {
         shipXVel += xAcc;
 
         applyVelocity();
-	
+
         if (shipYPos <= 0) {
             shipYPos = 0;
             gameFinished = true;
@@ -91,6 +90,13 @@ GameState GameEngine::step(InputState input) {
 
     return makeState();
 }
+
+// get the state without stepping the game. yeah, ik, kinda stupid to call out
+// to this other method that already exists.
+GameState GameEngine::getState() {
+    return makeState();
+}
+
 
 GameState GameEngine::makeState() {
     return {
