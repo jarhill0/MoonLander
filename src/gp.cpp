@@ -7,7 +7,7 @@
 #include <tuple>
 #include "GUIGame.h"
 
-#define UNIT_SIZE 5
+#define UNIT_SIZE 40
 
 using namespace std;
 
@@ -79,24 +79,32 @@ void init_pop() {
   }
 }
 
-
 void mutate(Individual *ind) {
   int r1 = rand() % (vect_w + 1);
   int c1 = rand() % (vect_h + 1);
 
   int r2 = rand() % (vect_w + 1);
   int c2 = rand() % (vect_h + 1);
+  if (r1 > r2) {
+    int tmp = r1;
+    r1 = r2;
+    r2 = tmp;
+  }
+
+  if (c1 > c2) {
+    int tmp = c1;
+    c1 = c2;
+    c2 = tmp;
+  }
 
   for (int i = r1; i < r2; i++) {
     for (int k = c1; k < c2; k++) {
-      
-      InputState *new_ind = rand_state();
-      
-      // delete old individual here
-      
-      ind->inputs[i][k] = new_ind;
+           
+      ind->inputs[i][k]->mainThruster = rand() % 2;
+      ind->inputs[i][k]->rotLeftThruster = rand() % 2;
+      ind->inputs[i][k]->rotRightThruster = rand() % 2;
     }
-  }  
+  }
 }
 
 tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2) {
@@ -110,6 +118,18 @@ tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2) {
 
   int r2 = rand() % (vect_w + 1);
   int c2 = rand() % (vect_h + 1);
+
+  if (r1 > r2) {
+    int tmp = r1;
+    r1 = r2;
+    r2 = tmp;
+  }
+  
+  if (c1 > c2) {
+    int tmp = c1;
+    c1 = c2;
+    c2 = tmp;
+  }
 
   for (int i = r1; i < r2; i++) {
     for (int k = c1; k < c2; k++) {
