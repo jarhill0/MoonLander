@@ -4,33 +4,73 @@
 #include <string>
 #include <cmath>
 #include "GUIGame.h"
+#include <vector>
+
+#define UNIT_SIZE 5
 
 using namespace std;
 
-#define UNIT_SIZE 5
+void init_pop(void);
+
+
+struct Individual {
+  vector<vector<InputState *>> inputs;
+  
+  double fitness;
+};
+
+const int pop_size = 100;
+
+const int vect_w = SCREEN_WIDTH/UNIT_SIZE;
+const int vect_h = SCREEN_HEIGHT/UNIT_SIZE;
+const int half_w = SCREEN_WIDTH/2;
+
+vector<Individual *> pop(pop_size);
 
 int main () {
   srand(time(0));
   
-  InputState input[SCREEN_WIDTH/UNIT_SIZE][SCREEN_HEIGHT/UNIT_SIZE];
-
-  for (int i=0 ; i < SCREEN_WIDTH/UNIT_SIZE; i++) {
-    for (int k=0; k < SCREEN_HEIGHT/UNIT_SIZE; k++) {
-      input[i][k] = InputState {rand() % 2, rand() % 2, rand() % 2};
-    }
-  }
-
-  GameEngine g;
+  init_pop();
   
-  while (!g.getFinished()) {
-    int x = floor((g.getX() + SCREEN_WIDTH/2) / UNIT_SIZE);
-    int y = floor((g.getY() + SCREEN_HEIGHT/2) / UNIT_SIZE);
-    cout << x << " " << y << endl;
-    InputState curr = input[x][y];
+  for (auto i : pop) {
     
-    g.step(curr);
+    GameEngine g;
+
+    // NEED TO KNOW MOONTILE HEIGHT FOR THIS!!!
+    g.setBounds(-(SCREEN_WIDTH / 2), SCREEN_WIDTH / 2,
+		   SCREEN_HEIGHT);
+
+    while (!g.getFinished()) {
+      int x = floor((g.getX() + half_w) / UNIT_SIZE);
+      int y = floor((SCREEN_HEIGHT - g.getY()) / UNIT_SIZE);
+
+      g.step(*(i->inputs[x][y]));
+    }
+
+    i -> fitness = g.getScore();
+    cout << i -> fitness << endl;
   }
-  cout << g.getScore() << endl;
   
   return 0;
+}
+
+void init_pop() {
+  for (int i=0; i < (int)pop.size(); i++) {
+    Individual *new_ind = new Individual;
+
+    vector<vector<InputState *>> inps(vect_w);
+
+    for (int r = 0; r < vect_w; r++) {
+      inps[r] = vector<InputState *>(vect_h);
+
+      for (int c = 0; c < vect_h; c++) {
+	inps[r][c] = new InputState { rand() % 2, rand() % 2, rand() % 2};
+      }
+    }
+
+    new_ind->fitness = 0;
+    new_ind->inputs = inps;
+
+    pop[i] = new_ind;
+  }
 }

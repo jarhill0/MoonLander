@@ -33,9 +33,6 @@ void BitBuffer::putBit(bool bit) {
     buffer <<= 1;
     buffer |= bit;
 
-    if (bit == false) std::cout << 0;
-    else std::cout << 1;
-    
     bit_count++;
     
     if (CHAR_BIT == bit_count) {
