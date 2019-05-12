@@ -3,21 +3,25 @@
 #include <fstream>
 #include <string>
 #include <cmath>
-#include "GUIGame.h"
 #include <vector>
+#include <tuple>
+#include "GUIGame.h"
 
 #define UNIT_SIZE 5
 
 using namespace std;
-
-void init_pop(void);
-
 
 struct Individual {
   vector<vector<InputState *>> inputs;
   
   double fitness;
 };
+
+
+void init_pop(void);
+InputState *rand_state(void);
+void mutate(Individual *i);
+tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2);
 
 const int pop_size = 100;
 
@@ -64,7 +68,7 @@ void init_pop() {
       inps[r] = vector<InputState *>(vect_h);
 
       for (int c = 0; c < vect_h; c++) {
-	inps[r][c] = new InputState { rand() % 2, rand() % 2, rand() % 2};
+	inps[r][c] = rand_state();
       }
     }
 
@@ -74,3 +78,54 @@ void init_pop() {
     pop[i] = new_ind;
   }
 }
+
+
+void mutate(Individual *ind) {
+  int r1 = rand() % (vect_w + 1);
+  int c1 = rand() % (vect_h + 1);
+
+  int r2 = rand() % (vect_w + 1);
+  int c2 = rand() % (vect_h + 1);
+
+  for (int i = r1; i < r2; i++) {
+    for (int k = c1; k < c2; k++) {
+      
+      InputState *new_ind = rand_state();
+      
+      // delete old individual here
+      
+      ind->inputs[i][k] = new_ind;
+    }
+  }  
+}
+
+tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2) {
+  tuple <Individual *, Individual *> results;
+
+  Individual *new_i1 = new Individual {i1->inputs, i1->fitness};
+  Individual *new_i2 = new Individual {i2->inputs, i2->fitness};
+  
+  int r1 = rand() % (vect_w + 1);
+  int c1 = rand() % (vect_h + 1);
+
+  int r2 = rand() % (vect_w + 1);
+  int c2 = rand() % (vect_h + 1);
+
+  for (int i = r1; i < r2; i++) {
+    for (int k = c1; k < c2; k++) {
+      InputState *tmp = new_i1->inputs[i][k];
+
+      *(new_i1->inputs[i][k]) = *(new_i2->inputs[i][k]);
+      *(new_i2->inputs[i][k]) = *tmp;
+    }
+  }
+
+  results = make_tuple(new_i1, new_i2);
+
+  return results;
+}
+
+InputState *rand_state() {
+  return new InputState {rand() % 2, rand() % 2, rand() % 2};
+}
+
