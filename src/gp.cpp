@@ -1,151 +1,166 @@
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <cmath>
-#include <vector>
-#include <tuple>
-#include "GUIGame.h"
-
-#define UNIT_SIZE 40
+#include "gp.h"
 
 using namespace std;
 
-struct Individual {
-  vector<vector<InputState *>> inputs;
-  
-  double fitness;
-};
-
-
-void init_pop(void);
-InputState *rand_state(void);
-void mutate(Individual *i);
-tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2);
-
-const int pop_size = 100;
-
-const int vect_w = SCREEN_WIDTH/UNIT_SIZE;
-const int vect_h = SCREEN_HEIGHT/UNIT_SIZE;
-const int half_w = SCREEN_WIDTH/2;
-
-vector<Individual *> pop(pop_size);
 
 int main () {
-  srand(time(0));
-  
-  init_pop();
-  
-  for (auto i : pop) {
+    assert(SCREEN_WIDTH % UNIT_SIZE == 0);
+    assert(SCREEN_HEIGHT % UNIT_SIZE == 0);    
+	
+    GP gp(POP_SIZE);
+
+    for (Individual *i : gp.pop) {
+	GameEngine g;
+	g.setDefaultFields();
+	g.setBounds(-(HALF_W), HALF_W, SCREEN_HEIGHT);
+	
+	GameState gs {0,0,0,0,0,0,0,0,0}; // Problem
+	
+	while (!gs.gameOver) {
+	    int x = gs.shipXPos + HALF_W;
+	    int y = gs.shipYPos;
+	    	    
+	    x = floor(x / UNIT_SIZE);
+	    y = floor(y / UNIT_SIZE);
+
+	    gs = g.step(*(i->inputs[x][y]));
+	}
+	
+	i -> fitness = gs.score;
+
+	i -> print();
+    }
     
-    GameEngine g;
-
-    // NEED TO KNOW MOONTILE HEIGHT FOR THIS!!!
-    g.setBounds(-(SCREEN_WIDTH / 2), SCREEN_WIDTH / 2,
-		   SCREEN_HEIGHT);
-
-    while (!g.getFinished()) {
-      int x = floor((g.getX() + half_w) / UNIT_SIZE);
-      int y = floor((SCREEN_HEIGHT - g.getY()) / UNIT_SIZE);
-
-      g.step(*(i->inputs[x][y]));
-    }
-
-    i -> fitness = g.getScore();
-    cout << i -> fitness << endl;
-  }
-  
-  return 0;
+    return 0;
 }
 
-void init_pop() {
-  for (int i=0; i < (int)pop.size(); i++) {
-    Individual *new_ind = new Individual;
 
-    vector<vector<InputState *>> inps(vect_w);
-
-    for (int r = 0; r < vect_w; r++) {
-      inps[r] = vector<InputState *>(vect_h);
-
-      for (int c = 0; c < vect_h; c++) {
-	inps[r][c] = rand_state();
-      }
-    }
-
-    new_ind->fitness = 0;
-    new_ind->inputs = inps;
-
-    pop[i] = new_ind;
-  }
+Individual::Individual(vector<vector<InputState *>> inps, double fit) {
+    inputs = inps;
+    fitness = fit;
 }
 
-void mutate(Individual *ind) {
-  int r1 = rand() % (vect_w + 1);
-  int c1 = rand() % (vect_h + 1);
-
-  int r2 = rand() % (vect_w + 1);
-  int c2 = rand() % (vect_h + 1);
-  if (r1 > r2) {
-    int tmp = r1;
-    r1 = r2;
-    r2 = tmp;
-  }
-
-  if (c1 > c2) {
-    int tmp = c1;
-    c1 = c2;
-    c2 = tmp;
-  }
-
-  for (int i = r1; i < r2; i++) {
-    for (int k = c1; k < c2; k++) {
-           
-      ind->inputs[i][k]->mainThruster = rand() % 2;
-      ind->inputs[i][k]->rotLeftThruster = rand() % 2;
-      ind->inputs[i][k]->rotRightThruster = rand() % 2;
+void Individual::print() {
+    cout << "Fitness: " << fitness << endl;
+    for (vector<InputState *> j : inputs) {
+	for (InputState *k : j) {
+	    k->print();
+	    cout << " ";
+	}
+	
+	cout << endl;
     }
-  }
 }
 
-tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2) {
-  tuple <Individual *, Individual *> results;
-
-  Individual *new_i1 = new Individual {i1->inputs, i1->fitness};
-  Individual *new_i2 = new Individual {i2->inputs, i2->fitness};
-  
-  int r1 = rand() % (vect_w + 1);
-  int c1 = rand() % (vect_h + 1);
-
-  int r2 = rand() % (vect_w + 1);
-  int c2 = rand() % (vect_h + 1);
-
-  if (r1 > r2) {
-    int tmp = r1;
-    r1 = r2;
-    r2 = tmp;
-  }
-  
-  if (c1 > c2) {
-    int tmp = c1;
-    c1 = c2;
-    c2 = tmp;
-  }
-
-  for (int i = r1; i < r2; i++) {
-    for (int k = c1; k < c2; k++) {
-      InputState *tmp = new_i1->inputs[i][k];
-
-      *(new_i1->inputs[i][k]) = *(new_i2->inputs[i][k]);
-      *(new_i2->inputs[i][k]) = *tmp;
+Individual::~Individual() {
+    for (vector<InputState *> j : inputs) {
+	for (InputState *k : j) {
+	    delete k;
+	}
     }
-  }
-
-  results = make_tuple(new_i1, new_i2);
-
-  return results;
+    
+    inputs.clear();
 }
 
-InputState *rand_state() {
-  return new InputState {rand() % 2, rand() % 2, rand() % 2};
+RandGen::RandGen() {
+    seed = genSeed();
+    rand_gen.seed(seed);
+}
+
+RandGen::RandGen(unsigned s) {
+    seed = s;
+    rand_gen.seed(seed);
+}
+
+InputState *RandGen::randState() {
+    return new InputState {randBool(), randBool(), randBool()};
+}
+
+int RandGen::randInt(int min, int max) {
+    uniform_int_distribution<std::mt19937::result_type> n(min, max);
+    return n(rand_gen);
+}
+
+bool RandGen::randBool() {
+    return (bool) randInt(0,1);
+}
+ 
+unsigned RandGen::genSeed() {
+    return random_device()();
+}
+
+GP::GP(int size) {
+    pop_size = size;
+    pop.reserve(pop_size);
+    initPop();
+}
+
+GP::~GP() {
+    for (Individual *i : pop) {
+	delete i;
+    }
+
+    pop.clear();
+}
+
+void GP::initPop() {
+    for (int i=0; i < pop_size; i++) {
+	vector<vector<InputState *>> inps(VECT_W);
+
+	for (int k = 0; k < VECT_W; k++) {
+	    inps[k] = vector<InputState *>(VECT_H);
+
+	    for (int c = 0; c < VECT_H; c++) {
+		inps[k][c] = r.randState();
+	    }
+	}
+	
+	pop.push_back(new Individual(inps, DEFAULT_FITNESS));
+    }
+}
+
+void GP::mutate(Individual *ind) {
+    int max_r = ind->inputs.size();
+    int max_c = ind->inputs[0].size();
+
+    int r1 = r.randInt(0, max_r);
+    int c1 = r.randInt(0, max_c);
+    
+    int r2 = r.randInt(r1, max_r);
+    int c2 = r.randInt(c1, max_c);
+    
+    for (int i = r1; i < r2; i++) {
+	for (int k = c1; k < c2; k++) {    
+	    ind->inputs[i][k]->mainThruster = r.randBool();
+	    ind->inputs[i][k]->rotLeftThruster = r.randBool();
+	    ind->inputs[i][k]->rotRightThruster = r.randBool();
+	}
+    }
+}
+
+tuple<Individual *, Individual *> GP::crossover(Individual *i1, Individual *i2) {
+    tuple <Individual *, Individual *> results;
+    
+    Individual *new_i1 = new Individual {i1->inputs, i1->fitness};
+    Individual *new_i2 = new Individual {i2->inputs, i2->fitness};
+    
+    int r1 = r.randInt(0, VECT_H);
+    int c1 = r.randInt(0, VECT_W);
+    
+    int r2 = r.randInt(r1, VECT_W);
+    int c2 = r.randInt(c1, VECT_H);
+    
+    for (int i = r1; i < r2; i++) {
+	for (int k = c1; k < c2; k++) {
+	    InputState *tmp = new_i1->inputs[i][k];
+	    
+	    *(new_i1->inputs[i][k]) = *(new_i2->inputs[i][k]);
+	    *(new_i2->inputs[i][k]) = *tmp;
+	}
+    }
+    
+    results = make_tuple(new_i1, new_i2);
+    
+    return results;
 }
 

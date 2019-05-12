@@ -126,7 +126,6 @@ void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
             }
 
             drawFrame(engine.step(inp));
-	    std::cout << engine.getX() << " " << engine.getY() << std::endl;
         }
 
         int frameTicks = frameStartTime - SDL_GetTicks();

@@ -25,10 +25,14 @@ struct GameState {
     double score;  // round to an int and floor at 0 for GUI.
 };
 
-struct InputState {
-    bool mainThruster;  // up arrow
-    bool rotLeftThruster;  // the thruster on the right that rotates ship left
-    bool rotRightThruster;
+class InputState {
+    public:
+        bool mainThruster;  // up arrow
+	bool rotLeftThruster;  // the thruster on the right that rotates ship left
+	bool rotRightThruster;
+	InputState();
+	InputState(bool m, bool l, bool r);
+	void print(void);
 };
 
 class GameEngine {
@@ -36,10 +40,7 @@ class GameEngine {
         GameEngine();  // constructor
         GameState step(InputState input);
         void setBounds(int, int, int);
-	bool getFinished(void);
-	double getX(void);
-	double getY(void);
-	double getScore(void);
+	void setDefaultFields(void);
 	
     private:
         double fuel;

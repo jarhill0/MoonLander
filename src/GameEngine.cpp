@@ -9,9 +9,26 @@
 #include "GameEngine.h"
 #include "const.h" // also includes math.h
 #include <tuple>
+#include <iostream>
+
+InputState::InputState(bool m, bool l, bool r) {
+    mainThruster = m;
+    rotLeftThruster = l;
+    rotRightThruster = r;
+}
+
+InputState::InputState(){}
+
+void InputState::print() {
+    std::cout << mainThruster << rotLeftThruster << rotRightThruster;
+}
 
 // Constructor
 GameEngine::GameEngine() {
+    setDefaultFields();
+}
+
+void GameEngine::setDefaultFields() {
     fuel = START_FUEL;
 
     shipYPos = START_Y_POS;
@@ -29,22 +46,6 @@ GameEngine::GameEngine() {
     leftBound = 0;
     rightBound = 0;
     topBound = 0;
-}
-
-bool GameEngine::getFinished() {
-  return gameFinished;
-}
-
-double GameEngine::getX() {
-  return shipXPos;
-}
-
-double GameEngine::getY() {
-  return shipYPos;
-}
-
-double GameEngine::getScore() {
-  return score;
 }
 
 // Step
@@ -76,7 +77,7 @@ GameState GameEngine::step(InputState input) {
         shipXVel += xAcc;
 
         applyVelocity();
-
+	
         if (shipYPos <= 0) {
             shipYPos = 0;
             gameFinished = true;
@@ -138,7 +139,9 @@ void GameEngine::setBounds(int left, int right, int top) {
 }
 
 bool GameEngine::checkBounds() {
+    // std::cout << shipXPos << " " << shipYPos << " " << topBound << std::endl;
     return shipXPos >= leftBound &&
         shipXPos <= rightBound &&
         shipYPos <= topBound;
 }
+
