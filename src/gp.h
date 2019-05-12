@@ -48,6 +48,7 @@ class RandGen {
         InputState *randState(void);
         int randInt(int min, int max);
         bool randBool(void);
+	tuple<int,int,int,int> randIndices(Individual *i);
 };
 
 
@@ -58,12 +59,12 @@ class GP {
        ~GP(void);
         int pop_size;
         
-        GameEngine g;
         vector<Individual *> pop;
         RandGen r;
         void initPop(void);
         void mutate(Individual *i);
         tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2);
+	void evaluate(Individual *);
 
 };
 

@@ -10,27 +10,30 @@ int main () {
     GP gp(POP_SIZE);
 
     for (Individual *i : gp.pop) {
-	GameEngine g;
-	g.setDefaultFields();
-	g.setBounds(-(HALF_W), HALF_W, SCREEN_HEIGHT);
-	
-	GameState gs {0,0,0,0,0,0,0,0,0}; // Problem
-	
-	while (!gs.gameOver) {
-	    int x = gs.shipXPos + HALF_W;
-	    int y = gs.shipYPos;
-	    	    
-	    x = floor(x / UNIT_SIZE);
-	    y = floor(y / UNIT_SIZE);
-
-	    gs = g.step(*(i->inputs[x][y]));
-	}
-	
-	i -> fitness = gs.score;
-
-	i -> print();
+	gp.evaluate(i);
     }
+
+    cout << "####### Crossover Example #######" << endl;
+    gp.pop[0] -> print();
+    gp.pop[1] -> print();
+
+    tuple<Individual *, Individual *> tmp = gp.crossover(gp.pop[0], gp.pop[1]);
+    gp.evaluate(get<0>(tmp));
+    gp.evaluate(get<1>(tmp));
     
+    get<0>(tmp) -> print();
+    get<1>(tmp) -> print();
+
+    cout << "####### Mutation Example #######" << endl;
+
+    gp.pop[2] -> print();
+
+    gp.mutate(gp.pop[2]);
+
+    gp.evaluate(gp.pop[2]);
+
+    gp.pop[2] -> print();
+        
     return 0;
 }
 
@@ -89,6 +92,23 @@ unsigned RandGen::genSeed() {
     return random_device()();
 }
 
+tuple<int, int, int, int> RandGen::randIndices(Individual *i) {
+    int max_r = i->inputs.size();
+    int max_c = i->inputs[0].size();
+    
+    int r1 = randInt(0, max_r-1);
+    int c1 = randInt(0, max_c-1);
+    int r2, c2;
+    
+    if (r1 == max_r) r2 = max_r+1;
+    else r2 = randInt(r1+1, max_r);
+    
+    if (c1 == max_c) c2 = max_c+1;
+    else c2 = randInt(c1+1, max_c);
+
+    return make_tuple(r1, c1, r2, c2);
+}
+
 GP::GP(int size) {
     pop_size = size;
     pop.reserve(pop_size);
@@ -120,17 +140,16 @@ void GP::initPop() {
 }
 
 void GP::mutate(Individual *ind) {
-    int max_r = ind->inputs.size();
-    int max_c = ind->inputs[0].size();
 
-    int r1 = r.randInt(0, max_r);
-    int c1 = r.randInt(0, max_c);
-    
-    int r2 = r.randInt(r1, max_r);
-    int c2 = r.randInt(c1, max_c);
+    tuple<int,int,int,int> indices = r.randIndices(ind);
+
+    int r1 = get<0>(indices);
+    int c1 = get<1>(indices);
+    int r2 = get<2>(indices);
+    int c2 = get<3>(indices);
     
     for (int i = r1; i < r2; i++) {
-	for (int k = c1; k < c2; k++) {    
+	for (int k = c1; k < c2; k++) {
 	    ind->inputs[i][k]->mainThruster = r.randBool();
 	    ind->inputs[i][k]->rotLeftThruster = r.randBool();
 	    ind->inputs[i][k]->rotRightThruster = r.randBool();
@@ -139,23 +158,28 @@ void GP::mutate(Individual *ind) {
 }
 
 tuple<Individual *, Individual *> GP::crossover(Individual *i1, Individual *i2) {
-    tuple <Individual *, Individual *> results;
+    assert(i1->inputs.size() == i2->inputs.size());
+    assert(i2->inputs[0].size() == i2->inputs[0].size());
+
+    tuple<Individual *, Individual *> results;
     
     Individual *new_i1 = new Individual {i1->inputs, i1->fitness};
     Individual *new_i2 = new Individual {i2->inputs, i2->fitness};
-    
-    int r1 = r.randInt(0, VECT_H);
-    int c1 = r.randInt(0, VECT_W);
-    
-    int r2 = r.randInt(r1, VECT_W);
-    int c2 = r.randInt(c1, VECT_H);
+
+    tuple<int,int,int,int> indices = r.randIndices(i1);
+
+    int r1 = get<0>(indices);
+    int c1 = get<1>(indices);
+    int r2 = get<2>(indices);
+    int c2 = get<3>(indices);
     
     for (int i = r1; i < r2; i++) {
 	for (int k = c1; k < c2; k++) {
-	    InputState *tmp = new_i1->inputs[i][k];
+
+	    InputState tmp = *(new_i1->inputs[i][k]);
 	    
 	    *(new_i1->inputs[i][k]) = *(new_i2->inputs[i][k]);
-	    *(new_i2->inputs[i][k]) = *tmp;
+	    *(new_i2->inputs[i][k]) = tmp;
 	}
     }
     
@@ -164,3 +188,23 @@ tuple<Individual *, Individual *> GP::crossover(Individual *i1, Individual *i2) 
     return results;
 }
 
+void GP::evaluate(Individual *i) {
+    GameEngine g;
+
+    g.setDefaultFields();
+    g.setBounds(-(HALF_W), HALF_W, SCREEN_HEIGHT);
+    
+    GameState gs = g.getState();
+    
+    while (!gs.gameOver) {
+	int x = gs.shipXPos + HALF_W;
+	int y = gs.shipYPos;
+	
+	x = floor(x / UNIT_SIZE);
+	y = floor(y / UNIT_SIZE);
+	
+	gs = g.step(*(i->inputs[x][y]));
+    }
+    
+    i -> fitness = gs.score;   
+}
