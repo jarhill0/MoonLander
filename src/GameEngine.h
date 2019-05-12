@@ -36,6 +36,11 @@ class GameEngine {
         GameEngine();  // constructor
         GameState step(InputState input);
         void setBounds(int, int, int);
+	bool getFinished(void);
+	double getX(void);
+	double getY(void);
+	double getScore(void);
+	
     private:
         double fuel;
         double score;

@@ -1,3 +1,4 @@
+
 /* Provide the game engine.
  *
  * Author: Joey Rees-Hill
@@ -7,6 +8,7 @@
 
 #include "GameEngine.h"
 #include "const.h" // also includes math.h
+#include <tuple>
 
 // Constructor
 GameEngine::GameEngine() {
@@ -27,6 +29,22 @@ GameEngine::GameEngine() {
     leftBound = 0;
     rightBound = 0;
     topBound = 0;
+}
+
+bool GameEngine::getFinished() {
+  return gameFinished;
+}
+
+double GameEngine::getX() {
+  return shipXPos;
+}
+
+double GameEngine::getY() {
+  return shipYPos;
+}
+
+double GameEngine::getScore() {
+  return score;
 }
 
 // Step

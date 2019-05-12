@@ -5,58 +5,7 @@
  * Date: April 2019
  */
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <string>
-#include <cstdio>
-#include <cstdlib>
-#include "GameEngine.h"
-#include "BitBuffer.h"
-
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
-const int FPS = 60;
-const int TICKS_PER_FRAME = 1000 / FPS;
-
-class Sprite {
-    public:
-        Sprite(void);
-        ~Sprite(void);
-
-        bool loadFile(std::string path, SDL_Renderer*);
-        void free(void);
-        int getWidth(void);
-        int getHeight(void);
-        bool switchRenderer(SDL_Renderer*);
-        SDL_Texture *texture;
-
-    private:
-        int width;
-        int height;
-        SDL_Surface *loadedSurface;
-        void freeSurface(void);
-        void freeTexture(void);
-};
-
-class GameGUI {
-    public:
-        GameGUI(bool);
-        ~GameGUI(void);
-        void gameLoop(FILE*, bool);
-
-    private:
-        bool loadMedia(void);
-        void renderSprite(Sprite*, int, int, double = 0.0);
-        void drawFrame(GameState);
-        bool handleResize();
-
-        GameEngine engine;
-        SDL_Window *gameWindow;
-        SDL_Renderer *gameRenderer;
-        Sprite *rocket;
-        Sprite *moonTile;
-        bool gameOver;
-};
+#include "GUIGame.h"
 
 GameGUI::GameGUI(bool bounded) {
     gameWindow = NULL;
@@ -139,6 +88,7 @@ void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
     bool quit = false;
     SDL_Event ev;
     Uint32 frameStartTime = SDL_GetTicks();
+
     while (!quit) {
         while (SDL_PollEvent(&ev) != 0) {
             if (SDL_QUIT == ev.type) {
@@ -158,6 +108,7 @@ void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
             InputState inp;
             if (inpFromFile) {
                 inp = {buffer.getBit(), buffer.getBit(), buffer.getBit()};
+
             } else {
                 const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
                 inp = {
@@ -267,7 +218,7 @@ void GameGUI::drawFrame(GameState gs) {
      * and then we use the ovalOffset() function to compute how we should
      * offset our x and y coordinates so that the "ship point" ends up on the
      * bottom of the ellipse.
-     *
+     *n
      * The end result of this all is that when we (crash) land on the moon,
      * our ship visually collides with the ground much better.
      *
@@ -423,6 +374,7 @@ int main(int argc, char *argv[]) {
     FILE *inpDump = NULL;
     bool readFromFile = false;
     bool bounded = false;
+
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-o")) {
             if (i + 1 < argc) {
@@ -448,6 +400,7 @@ int main(int argc, char *argv[]) {
 
     GameGUI game(bounded);
     game.gameLoop(inpDump, readFromFile);
+
     if (inpDump != NULL) {
         fclose(inpDump);
         inpDump = NULL;
