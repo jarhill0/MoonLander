@@ -8,6 +8,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <string>
+#include <random>
 #include <cstdio>
 #include <cstdlib>
 #include "GameEngine.h"
@@ -17,6 +18,7 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int FPS = 60;
 const int TICKS_PER_FRAME = 1000 / FPS;
+const int NUM_STARS = 420;
 
 class Sprite {
     public:
@@ -47,6 +49,8 @@ class GameGUI {
     private:
         bool loadMedia(void);
         void renderSprite(Sprite*, int, int, double = 0.0);
+        void drawStars();
+        void initStars();
         void drawFrame(GameState);
         bool handleResize();
 
@@ -56,6 +60,8 @@ class GameGUI {
         Sprite *rocket;
         Sprite *moonTile;
         bool gameOver;
+        int starsX[NUM_STARS];
+        int starsY[NUM_STARS];
 };
 
 GameGUI::GameGUI(bool bounded) {
@@ -96,6 +102,8 @@ GameGUI::GameGUI(bool bounded) {
         engine.setBounds(-(SCREEN_WIDTH / 2), SCREEN_WIDTH / 2,
                 SCREEN_HEIGHT - moonTile->getHeight());
     }
+
+    initStars();
 }
 
 bool GameGUI::loadMedia() {
@@ -130,6 +138,28 @@ void GameGUI::renderSprite(Sprite *s, int x, int y, double rotation) {
 
     SDL_RenderCopyEx(gameRenderer, s->texture, NULL, &boundingBox, rotation,
             NULL, SDL_FLIP_NONE);
+}
+
+void GameGUI::drawStars() {
+    int xScale, yScale;
+    {
+        int width, height;
+        SDL_GL_GetDrawableSize(gameWindow, &width, &height);
+        xScale = width / SCREEN_WIDTH;
+        yScale = height / SCREEN_HEIGHT;
+    }
+
+    SDL_SetRenderDrawColor(gameRenderer, 0xff, 0xff, 0xff, 0xff);
+
+    for (int i = 0; i < NUM_STARS; i++) {
+        int x = starsX[i];
+        int y = starsY[i];
+
+        x *= xScale;
+        y *= yScale;
+
+        SDL_RenderDrawPoint(gameRenderer, x, y);
+    }
 }
 
 void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
@@ -226,6 +256,8 @@ void GameGUI::drawFrame(GameState gs) {
     SDL_RenderClear(gameRenderer);
     
     int baseline = SCREEN_HEIGHT - moonTile->getHeight();
+
+    drawStars();
     
     // draw rocket
     /* So... fun stuff here.
@@ -323,6 +355,20 @@ void GameGUI::drawFrame(GameState gs) {
         int score = (int) gs.score > 0 ? gs.score : 0;
         printf("Game over! Your score: %d\n", score);
         printf("Real score: %f\n", gs.score);
+    }
+}
+
+void GameGUI::initStars() {
+    // from https://stackoverflow.com/a/13445752/
+    std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_int_distribution<std::mt19937::result_type>
+        xdist(0, SCREEN_WIDTH);
+    std::uniform_int_distribution<std::mt19937::result_type>
+        ydist(0, SCREEN_HEIGHT);
+    for (int i = 0; i < NUM_STARS; i++) {
+        starsX[i] = xdist(rng);
+        starsY[i] = ydist(rng);
     }
 }
 
