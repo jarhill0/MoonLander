@@ -21,6 +21,7 @@ const int FPS = 60;
 const int TICKS_PER_FRAME = 1000 / FPS;
 const int NUM_STARS = 420;
 const int FONT_SIZE = 32;
+const int LANDINGPAD_Y_OFFSET = 11;
 
 class Sprite {
     public:
@@ -63,7 +64,8 @@ class GameGUI {
         Sprite *rocket;
         Sprite *moonTile;
         Sprite *scoreSprite;
-        Sprite *landingPad;
+        Sprite *landingPadFront;
+        Sprite *landingPadBack;
         bool gameOver;
         int starsX[NUM_STARS];
         int starsY[NUM_STARS];
@@ -116,7 +118,8 @@ GameGUI::GameGUI(bool bounded) {
     rocket = new Sprite();
     moonTile = new Sprite();
     scoreSprite = new Sprite();
-    landingPad = new Sprite();
+    landingPadFront = new Sprite();
+    landingPadBack = new Sprite();
 
     if (!loadMedia()) {
         puts("Couldn't load media!");
@@ -142,8 +145,13 @@ bool GameGUI::loadMedia() {
         return false;
     }
 
-    if (!landingPad->loadFile("img/landingpad.png", gameRenderer)) {
-        fprintf(stderr, "Failed to load landing pad!\n");
+    if (!landingPadFront->loadFile("img/landingpad-front.png", gameRenderer)) {
+        fprintf(stderr, "Failed to load landing pad front!\n");
+        return false;
+    }
+
+    if (!landingPadBack->loadFile("img/landingpad-back.png", gameRenderer)) {
+        fprintf(stderr, "Failed to load landing pad back!\n");
         return false;
     }
 
@@ -288,7 +296,18 @@ void GameGUI::drawFrame(GameState gs) {
     int baseline = SCREEN_HEIGHT - moonTile->getHeight();
 
     drawStars();
-    
+
+    // draw moon surface
+    for (int x = 0; x < SCREEN_WIDTH; x += moonTile->getWidth()) {
+        renderSprite(moonTile, x, baseline);
+    }
+
+    // draw landing pad back
+    int landingPadX = (SCREEN_WIDTH - landingPadBack->getWidth()) / 2;
+    int landingPadY = baseline - landingPadBack->getHeight()
+        + LANDINGPAD_Y_OFFSET;
+    renderSprite(landingPadBack, landingPadX, landingPadY);
+
     // draw rocket
     /* So... fun stuff here.
      *
@@ -327,27 +346,8 @@ void GameGUI::drawFrame(GameState gs) {
     int shipRot = -((gs.shipRotation * 180 / M_PI) - 90);
     renderSprite(rocket, shipXPos, shipYPos, shipRot);
 
-    // draw moon surface
-    for (int x = 0; x < SCREEN_WIDTH; x += moonTile->getWidth()) {
-        renderSprite(moonTile, x, baseline);
-    }
-    // draw landing pad
-    renderSprite(landingPad, (SCREEN_WIDTH - landingPad->getWidth()) / 2,
-            baseline - landingPad->getHeight());
-    SDL_SetRenderDrawColor(gameRenderer, 0xff, 0x00, 0x00, 0xff);
-    {
-        int xScale, yScale;
-        {
-            int width, height;
-            SDL_GL_GetDrawableSize(gameWindow, &width, &height);
-            xScale = width / SCREEN_WIDTH;
-            yScale = height / SCREEN_HEIGHT;
-        }
-        SDL_RenderDrawLine(gameRenderer, xScale * SCREEN_WIDTH / 2,
-                yScale * SCREEN_HEIGHT,
-                xScale * SCREEN_WIDTH / 2,
-                yScale * (SCREEN_HEIGHT - moonTile->getHeight()));
-    }
+    // draw landing pad front
+    renderSprite(landingPadFront, landingPadX, landingPadY);
 
     // draw fuel remaining
     int width, height;
@@ -420,7 +420,8 @@ GameGUI::~GameGUI() {
     delete rocket;
     delete moonTile;
     delete scoreSprite;
-    delete landingPad;
+    delete landingPadFront;
+    delete landingPadBack;
 
     TTF_CloseFont(textFont);
     textFont = NULL;
