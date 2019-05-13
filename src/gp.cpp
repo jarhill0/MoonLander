@@ -25,7 +25,7 @@ int main () {
     get<0>(tmp) -> print();
     get<1>(tmp) -> print();
 
-    gp.sortPopulation();
+    gp.sortPopulation(gp.pop);
 
     for (Individual *i : gp.pop) {
     	i -> print();
@@ -41,6 +41,8 @@ int main () {
     gp.evaluate(gp.pop[2]);
 
     gp.pop[2] -> print();
+
+    vector<Individual *> comps = gp.tournamentSelection();
 
     for (Individual *i : gp.pop) {
  	delete i;
@@ -122,8 +124,8 @@ bool RandGen::randBool() {
 }
  
 unsigned RandGen::genSeed() {
-    return 0;
-    // return random_device()();
+    // return 0;
+    return random_device()();
 }
 
 tuple<int, int, int, int> RandGen::randIndices(Individual *i) {
@@ -248,8 +250,38 @@ bool compareIndividuals(Individual *i1, Individual *i2) {
 }
 
 
-void GP::sortPopulation() {
-    std::sort(pop.begin(), pop.end(), compareIndividuals);
+void GP::sortPopulation(vector<Individual *> p) {
+    std::sort(p.begin(), p.end(), compareIndividuals);
 }
 
-vector<Individual *> tournamentSelection
+vector<Individual *> GP::tournamentSelection() {
+    vector<Individual *> winners(pop_size);
+
+    vector<Individual *> competitors(TOURNAMENT_SIZE);
+
+    int win_i = 0;
+
+    while (win_i < pop_size) {
+	for (int i = 0; i < TOURNAMENT_SIZE; i++) {
+	    int idx = r.randInt(0, pop_size - i - 1);
+
+	    Individual *tmp = pop[idx];
+	    tmp -> print();
+	    competitors.push_back(tmp);
+
+	    Individual *tmp2 = pop[pop_size - i - 1];
+	    pop[pop_size - i - 1] = pop[idx];
+	    pop[idx] = tmp2;
+	}
+
+	sortPopulation(competitors);
+	Individual *tmp = competitors[0];
+	winners[win_i++] = tmp;
+    }
+
+    for (auto i : competitors) {
+	delete i;
+    }
+
+    return winners;
+}

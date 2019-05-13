@@ -24,6 +24,7 @@ using namespace std;
 #define POP_SIZE 5
 #define UNIT_SIZE 200 // must divide SCREEN_WIDTH and HEIGHT
 #define DEFAULT_FITNESS INT_MIN
+#define TOURNAMENT_SIZE 5
 
 const int VECT_W = SCREEN_WIDTH/UNIT_SIZE;
 const int HALF_W = SCREEN_WIDTH/2;
@@ -69,8 +70,9 @@ class GP {
         void mutate(Individual *i);
         tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2);
 	void evaluate(Individual *);
-	
 	void sortPopulation(void);
+	vector<Individual *> tournamentSelection(void);
+	void sortPopulation(vector<Individual *> p);
 };
 
 
