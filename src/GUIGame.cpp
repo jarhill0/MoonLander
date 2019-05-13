@@ -7,6 +7,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <string>
 #include <cstdio>
 #include <cstdlib>
@@ -17,13 +18,15 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int FPS = 60;
 const int TICKS_PER_FRAME = 1000 / FPS;
+const int FONT_SIZE = 32;
 
 class Sprite {
     public:
         Sprite(void);
         ~Sprite(void);
 
-        bool loadFile(std::string path, SDL_Renderer*);
+        bool loadFile(std::string, SDL_Renderer*);
+        bool loadText(std::string, SDL_Color, TTF_Font*, SDL_Renderer*);
         void free(void);
         int getWidth(void);
         int getHeight(void);
@@ -55,7 +58,9 @@ class GameGUI {
         SDL_Renderer *gameRenderer;
         Sprite *rocket;
         Sprite *moonTile;
+        Sprite *scoreSprite;
         bool gameOver;
+        TTF_Font *textFont;
 };
 
 GameGUI::GameGUI(bool bounded) {
@@ -64,6 +69,17 @@ GameGUI::GameGUI(bool bounded) {
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("Error initializing SDL: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    int imgFlags = IMG_INIT_PNG;
+    if (!(IMG_Init(imgFlags) & imgFlags)) {
+        fprintf(stderr, "Error initializing SDL_IMG: %s\n", IMG_GetError());
+        exit(1);
+    }
+
+    if (TTF_Init() == -1) {
+        fprintf(stderr, "Error initializing SDL_TTF: %s\n", TTF_GetError());
         exit(1);
     }
 
@@ -84,8 +100,15 @@ GameGUI::GameGUI(bool bounded) {
         exit(1);
     }
 
+    textFont = TTF_OpenFont("img/OpenSans-Regular.ttf", FONT_SIZE);
+    if (NULL == textFont) {
+        fprintf(stderr, "Failed to load font: %s\n", TTF_GetError());
+        exit(1);
+    }
+
     rocket = new Sprite();
     moonTile = new Sprite();
+    scoreSprite = new Sprite();
 
     if (!loadMedia()) {
         puts("Couldn't load media!");
@@ -316,19 +339,35 @@ void GameGUI::drawFrame(GameState gs) {
         20 * yScale, barWidth, 20 * yScale};
     SDL_RenderFillRect(gameRenderer, &velocityBarRect);
 
-    SDL_RenderPresent(gameRenderer);
-
     gameOver = gs.gameOver;
     if (gameOver) {
         int score = (int) gs.score > 0 ? gs.score : 0;
-        printf("Game over! Your score: %d\n", score);
+        char scoreText[200];
+        sprintf(scoreText, "Game over! Score: %d", score);
+        std::string scoreTextStdStr = scoreText;
+        SDL_Color textColor;
+        if (score > 0) {
+            textColor = {0x00, 0xff, 0x20, 0xff};
+        } else {
+            textColor = {0xff, 0x20, 0x00, 0xff};
+        }
+        scoreSprite->loadText(scoreText, textColor, textFont, gameRenderer);
+        int textX = (SCREEN_WIDTH - scoreSprite->getWidth()) / 2;
+        int textY = (SCREEN_HEIGHT - scoreSprite->getHeight()) / 2;
+        renderSprite(scoreSprite, textX, textY);
         printf("Real score: %f\n", gs.score);
     }
+    
+    SDL_RenderPresent(gameRenderer);
 }
 
 GameGUI::~GameGUI() {
-    rocket->free();
-    moonTile->free();
+    delete rocket;
+    delete moonTile;
+    delete scoreSprite;
+
+    TTF_CloseFont(textFont);
+    textFont = NULL;
 
     SDL_DestroyRenderer(gameRenderer);
     gameRenderer = NULL;
@@ -336,6 +375,7 @@ GameGUI::~GameGUI() {
     SDL_DestroyWindow(gameWindow);
     gameWindow = NULL;
 
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }
@@ -354,6 +394,24 @@ bool Sprite::loadFile(std::string path, SDL_Renderer *renderer) {
     if (NULL == loadedSurface) {
         printf("Couldn't load image '%s'. Got error %s\n",
                 path.c_str(), IMG_GetError());
+        return false;
+    }
+
+    width = loadedSurface->w;
+    height = loadedSurface->h;
+
+    return switchRenderer(renderer);
+}
+
+bool Sprite::loadText(std::string text, SDL_Color color, TTF_Font *font,
+        SDL_Renderer *renderer) {
+    free();
+
+    loadedSurface = TTF_RenderText_Blended_Wrapped(font, text.c_str(), color,
+            172);  // last parameter is text width
+    // see https://stackoverflow.com/a/18418688/
+    if (NULL == loadedSurface) {
+        fprintf(stderr, "Couldn't render text: %s\n", SDL_GetError());
         return false;
     }
 
