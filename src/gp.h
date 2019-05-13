@@ -11,7 +11,10 @@
 #include <random>
 #include <climits>
 #include <assert.h>
+#include <memory>
+#include <algorithm>
 #include "GameEngine.h"
+
 
 using namespace std;
 
@@ -30,9 +33,10 @@ class Individual {
     public:
         vector<vector<InputState *>> inputs;
         double fitness;
-    
+	
         Individual(vector<vector<InputState *>> inputs, double fitness);
-       ~Individual(void);
+	~Individual(void);
+	Individual(Individual &i);
         void print(void);
 };
 
@@ -65,7 +69,8 @@ class GP {
         void mutate(Individual *i);
         tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2);
 	void evaluate(Individual *);
-
+	
+	void sortPopulation(void);
 };
 
 

@@ -11,6 +11,7 @@ int main () {
 
     for (Individual *i : gp.pop) {
 	gp.evaluate(i);
+	i -> print();
     }
 
     cout << "####### Crossover Example #######" << endl;
@@ -24,6 +25,13 @@ int main () {
     get<0>(tmp) -> print();
     get<1>(tmp) -> print();
 
+    gp.sortPopulation();
+
+    for (Individual *i : gp.pop) {
+    	i -> print();
+    }
+
+    
     cout << "####### Mutation Example #######" << endl;
 
     gp.pop[2] -> print();
@@ -33,7 +41,13 @@ int main () {
     gp.evaluate(gp.pop[2]);
 
     gp.pop[2] -> print();
-        
+
+    for (Individual *i : gp.pop) {
+ 	delete i;
+    }
+
+    gp.pop.clear();
+
     return 0;
 }
 
@@ -41,6 +55,25 @@ int main () {
 Individual::Individual(vector<vector<InputState *>> inps, double fit) {
     inputs = inps;
     fitness = fit;
+}
+
+Individual::Individual(Individual &i) {
+    vector<vector<InputState *>> new_vec(i.inputs.size());
+    
+    for (vector<InputState *> j: i.inputs) {
+	vector<InputState *> n(j.size());
+	
+	for (InputState *k : j) {
+	    InputState *new_inp = new InputState
+		{k->mainThruster, k->rotLeftThruster, k->rotRightThruster};
+	    n.push_back(new_inp);
+	}
+
+	new_vec.push_back(n);
+    }
+
+    inputs = new_vec;
+    fitness = i.fitness;
 }
 
 void Individual::print() {
@@ -57,9 +90,9 @@ void Individual::print() {
 
 Individual::~Individual() {
     for (vector<InputState *> j : inputs) {
-	for (InputState *k : j) {
-	    delete k;
-	}
+    	for (InputState *k : j) {
+    	    delete k;
+    	}
     }
     
     inputs.clear();
@@ -89,7 +122,8 @@ bool RandGen::randBool() {
 }
  
 unsigned RandGen::genSeed() {
-    return random_device()();
+    return 0;
+    // return random_device()();
 }
 
 tuple<int, int, int, int> RandGen::randIndices(Individual *i) {
@@ -117,7 +151,7 @@ GP::GP(int size) {
 
 GP::~GP() {
     for (Individual *i : pop) {
-	delete i;
+ 	delete i;
     }
 
     pop.clear();
@@ -163,8 +197,8 @@ tuple<Individual *, Individual *> GP::crossover(Individual *i1, Individual *i2) 
 
     tuple<Individual *, Individual *> results;
     
-    Individual *new_i1 = new Individual {i1->inputs, i1->fitness};
-    Individual *new_i2 = new Individual {i2->inputs, i2->fitness};
+    Individual *new_i1 = i1;
+    Individual *new_i2 = i2;
 
     tuple<int,int,int,int> indices = r.randIndices(i1);
 
@@ -208,3 +242,14 @@ void GP::evaluate(Individual *i) {
     
     i -> fitness = gs.score;   
 }
+
+bool compareIndividuals(Individual *i1, Individual *i2) {
+    return (i1->fitness > i2->fitness);
+}
+
+
+void GP::sortPopulation() {
+    std::sort(pop.begin(), pop.end(), compareIndividuals);
+}
+
+vector<Individual *> tournamentSelection

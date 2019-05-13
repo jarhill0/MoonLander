@@ -27,8 +27,8 @@ $(BIN)/GUIGame: $(OBJ)/GUIGame.o $(OBJ)/GameEngine.o $(OBJ)/BitBuffer.o
 $(OBJ)/GP.o: $(SRC)/gp.cpp $(SRC)/GameEngine.h $(SRC)/BitBuffer.h $(SRC)/gp.h
 	$(CPPC) $(FLAGS) -c -o $(OBJ)/GP.o $(SRC)/gp.cpp
 
-$(BIN)/GP: $(OBJ)/GUIGame.o $(OBJ)/GameEngine.o $(OBJ)/BitBuffer.o $(OBJ)/GP.o
-	$(CPPC) -o $(BIN)/GP $(OBJ)/GP.o $(OBJ)/GameEngine.o $(OBJ)/BitBuffer.o $(FLAGS) $(SDLIMGFLAGS) $(SDLFLAGS)
+$(BIN)/GP: $(OBJ)/GameEngine.o $(OBJ)/BitBuffer.o $(OBJ)/GP.o
+	$(CPPC) -o $(BIN)/GP $(OBJ)/GP.o $(OBJ)/GameEngine.o $(OBJ)/BitBuffer.o $(FLAGS)
 
 
 $(OBJ)/BitBuffer.o: $(SRC)/BitBuffer.cpp $(SRC)/BitBuffer.h
