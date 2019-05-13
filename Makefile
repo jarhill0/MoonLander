@@ -1,7 +1,7 @@
 CPPC = g++
 FLAGS = -g -pedantic -Wall -Wextra -Werror -std=c++11
 SDLFLAGS = `pkg-config --cflags --libs sdl2`
-SDLIMGFLAGS = `pkg-config --cflags --libs sdl2_image sdl2_ttf`
+SDLIMGFLAGS = `pkg-config --cflags --libs sdl2_image`
 SRC = src
 BIN = bin
 OBJ = obj
