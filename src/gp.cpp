@@ -7,43 +7,12 @@ int main () {
     assert(SCREEN_WIDTH % UNIT_SIZE == 0);
     assert(SCREEN_HEIGHT % UNIT_SIZE == 0);    
 	
-    GP gp(POP_SIZE);
+    GP gp;
 
-    for (Individual *i : gp.pop) {
-	gp.evaluate(i);
-	i -> print();
-    }
+    Individual *bestEver = gp.searchLoop(gp.pop);
 
-    cout << "####### Crossover Example #######" << endl;
-    gp.pop[0] -> print();
-    gp.pop[1] -> print();
-
-    tuple<Individual *, Individual *> tmp = gp.crossover(gp.pop[0], gp.pop[1]);
-    gp.evaluate(get<0>(tmp));
-    gp.evaluate(get<1>(tmp));
+    bestEver -> print();
     
-    get<0>(tmp) -> print();
-    get<1>(tmp) -> print();
-
-    gp.sortPopulation(gp.pop);
-
-    for (Individual *i : gp.pop) {
-    	i -> print();
-    }
-
-    
-    cout << "####### Mutation Example #######" << endl;
-
-    gp.pop[2] -> print();
-
-    gp.mutate(gp.pop[2]);
-
-    gp.evaluate(gp.pop[2]);
-
-    gp.pop[2] -> print();
-
-    vector<Individual *> comps = gp.tournamentSelection();
-
     for (Individual *i : gp.pop) {
  	delete i;
     }
@@ -59,7 +28,7 @@ Individual::Individual(vector<vector<InputState *>> inps, double fit) {
     fitness = fit;
 }
 
-Individual::Individual(Individual &i) {
+Individual::Individual(const Individual &i) {
     vector<vector<InputState *>> new_vec(i.inputs.size());
     
     for (vector<InputState *> j: i.inputs) {
@@ -76,6 +45,13 @@ Individual::Individual(Individual &i) {
 
     inputs = new_vec;
     fitness = i.fitness;
+}
+
+Individual& Individual::operator=(Individual i) {
+    swap(fitness, i.fitness);    
+    inputs.swap(i.inputs);
+
+    return *this;
 }
 
 void Individual::print() {
@@ -124,7 +100,6 @@ bool RandGen::randBool() {
 }
  
 unsigned RandGen::genSeed() {
-    // return 0;
     return random_device()();
 }
 
@@ -145,9 +120,15 @@ tuple<int, int, int, int> RandGen::randIndices(Individual *i) {
     return make_tuple(r1, c1, r2, c2);
 }
 
-GP::GP(int size) {
-    pop_size = size;
-    pop.reserve(pop_size);
+GP::GP() {
+    popSize = POPULATION_SIZE;
+    tournamentSize = TOURNAMENT_SIZE;
+    eliteSize = ELITE_SIZE;
+    generations = GENERATIONS;
+    mutationProbability = MUTATION_PROBABILITY;
+    crossoverProbability = CROSSOVER_PROBABILITY;
+    
+    pop.reserve(popSize);
     initPop();
 }
 
@@ -160,7 +141,7 @@ GP::~GP() {
 }
 
 void GP::initPop() {
-    for (int i=0; i < pop_size; i++) {
+    for (int i=0; i < popSize; i++) {
 	vector<vector<InputState *>> inps(VECT_W);
 
 	for (int k = 0; k < VECT_W; k++) {
@@ -176,6 +157,7 @@ void GP::initPop() {
 }
 
 void GP::mutate(Individual *ind) {
+    if (r.randInt(0, 100) >= mutationProbability) return;
 
     tuple<int,int,int,int> indices = r.randIndices(ind);
 
@@ -202,23 +184,25 @@ tuple<Individual *, Individual *> GP::crossover(Individual *i1, Individual *i2) 
     Individual *new_i1 = i1;
     Individual *new_i2 = i2;
 
-    tuple<int,int,int,int> indices = r.randIndices(i1);
-
-    int r1 = get<0>(indices);
-    int c1 = get<1>(indices);
-    int r2 = get<2>(indices);
-    int c2 = get<3>(indices);
-    
-    for (int i = r1; i < r2; i++) {
-	for (int k = c1; k < c2; k++) {
-
-	    InputState tmp = *(new_i1->inputs[i][k]);
-	    
-	    *(new_i1->inputs[i][k]) = *(new_i2->inputs[i][k]);
-	    *(new_i2->inputs[i][k]) = tmp;
+    if (r.randInt(0, 100) < crossoverProbability) {
+	tuple<int,int,int,int> indices = r.randIndices(i1);
+	
+	int r1 = get<0>(indices);
+	int c1 = get<1>(indices);
+	int r2 = get<2>(indices);
+	int c2 = get<3>(indices);
+	
+	for (int i = r1; i < r2; i++) {
+	    for (int k = c1; k < c2; k++) {
+		
+		InputState tmp = *(new_i1->inputs[i][k]);
+		
+		*(new_i1->inputs[i][k]) = *(new_i2->inputs[i][k]);
+		*(new_i2->inputs[i][k]) = tmp;
+	    }
 	}
     }
-    
+	
     results = make_tuple(new_i1, new_i2);
     
     return results;
@@ -255,33 +239,117 @@ void GP::sortPopulation(vector<Individual *> p) {
 }
 
 vector<Individual *> GP::tournamentSelection() {
-    vector<Individual *> winners(pop_size);
+    vector<Individual *> winners(popSize);
 
-    vector<Individual *> competitors(TOURNAMENT_SIZE);
+    vector<Individual *> competitors(tournamentSize);
 
     int win_i = 0;
 
-    while (win_i < pop_size) {
-	for (int i = 0; i < TOURNAMENT_SIZE; i++) {
-	    int idx = r.randInt(0, pop_size - i - 1);
-
+    while (win_i < popSize) {
+	for (int i = 0; i < tournamentSize; i++) {
+	    int idx = r.randInt(0, popSize - i - 1);
 	    Individual *tmp = pop[idx];
-	    tmp -> print();
-	    competitors.push_back(tmp);
+	    competitors[i] = tmp; 
 
-	    Individual *tmp2 = pop[pop_size - i - 1];
-	    pop[pop_size - i - 1] = pop[idx];
+	    Individual *tmp2 = pop[popSize - i - 1];
+	    pop[popSize - i - 1] = pop[idx];
 	    pop[idx] = tmp2;
 	}
-
+	
 	sortPopulation(competitors);
 	Individual *tmp = competitors[0];
 	winners[win_i++] = tmp;
     }
 
-    for (auto i : competitors) {
-	delete i;
-    }
-
     return winners;
 }
+
+void GP::generationalReplacement(vector<Individual *> newPop, vector<Individual *> oldPop) {
+    sortPopulation(newPop);
+    sortPopulation(oldPop);
+
+    for (int i=0; i < eliteSize; i++) {
+	// Elite individuals are always propogated
+	// delete newPop[popSize - i - 1];
+
+	newPop[popSize - i - 1] = oldPop[i];
+
+	oldPop[i] = nullptr;
+    }
+}
+
+Individual *GP::searchLoop(vector<Individual *> p) {
+    evaluatePopulation(p);
+
+    sortPopulation(p);
+
+    Individual *bestEver = p[0];
+
+    int gen = 1;
+
+    vector<Individual *> newPop(popSize);
+    vector<Individual *> parents;
+
+    while (gen < generations) {
+
+	int newPopIndex = 0;
+
+	parents = tournamentSelection();
+
+	// Crossover
+	while (newPopIndex < popSize) {
+	    int idx = r.randInt(0, popSize-1);
+
+	    Individual *p1 = parents[idx];
+	    Individual *p2;
+
+	    //Swap p1 with last element so that it cannot be picked again
+	    Individual *tmp = parents[popSize - 1];
+
+	    parents[popSize - 1] = p1;
+	    parents[idx] = tmp;
+
+	    p2 = parents[r.randInt(0, popSize - 2)];
+	    
+	    tuple<Individual *,  Individual *> children = crossover(p1, p2);
+
+	    // Append first child to population.
+	    evaluate(get<0>(children));
+	    newPop[newPopIndex++] = get<0>(children);
+
+	    // Wait to add the second child to ensure that you are not adding one too many.
+	    // This is specifically for odd number population sizes.
+	    if (newPopIndex < popSize) {
+		evaluate(get<1>(children));
+		newPop[newPopIndex++] = get<1>(children);
+	    }
+	}
+
+	for (Individual *i : p) {
+	    mutate(i);
+	}
+
+	evaluatePopulation(newPop);
+
+	generationalReplacement(newPop, p);
+
+	p.swap(newPop);
+
+	sortPopulation(p);
+
+	bestEver = p[0];
+
+	gen++;
+    }
+
+    return bestEver;
+}
+
+void GP::evaluatePopulation(vector<Individual *> p) {
+    for (Individual *ind : p) {
+	evaluate(ind);
+    }
+}
+
+
+

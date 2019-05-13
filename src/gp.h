@@ -21,10 +21,14 @@ using namespace std;
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
-#define POP_SIZE 5
+#define POPULATION_SIZE 100
 #define UNIT_SIZE 200 // must divide SCREEN_WIDTH and HEIGHT
 #define DEFAULT_FITNESS INT_MIN
-#define TOURNAMENT_SIZE 5
+#define TOURNAMENT_SIZE 3
+#define ELITE_SIZE 2
+#define GENERATIONS 20
+#define MUTATION_PROBABILITY 20
+#define CROSSOVER_PROBABILITY 80
 
 const int VECT_W = SCREEN_WIDTH/UNIT_SIZE;
 const int HALF_W = SCREEN_WIDTH/2;
@@ -37,7 +41,8 @@ class Individual {
 	
         Individual(vector<vector<InputState *>> inputs, double fitness);
 	~Individual(void);
-	Individual(Individual &i);
+	Individual(const Individual &i);
+	Individual &operator=(Individual i);
         void print(void);
 };
 
@@ -60,19 +65,27 @@ class RandGen {
 
 class GP {
     public:
-        GP(int size);
+        GP(void);
        ~GP(void);
-        int pop_size;
+        int popSize;
+	int tournamentSize;
+	int eliteSize;
+	int generations;
+	int mutationProbability;
+	int crossoverProbability;
         
         vector<Individual *> pop;
         RandGen r;
         void initPop(void);
         void mutate(Individual *i);
         tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2);
-	void evaluate(Individual *);
+	static void evaluate(Individual *);
 	void sortPopulation(void);
 	vector<Individual *> tournamentSelection(void);
-	void sortPopulation(vector<Individual *> p);
+	static void sortPopulation(vector<Individual *> p);
+	void generationalReplacement(vector<Individual *> newPop, vector<Individual *> oldPop);
+	static void evaluatePopulation(vector<Individual *> p);
+	Individual *searchLoop(vector<Individual *> p);
 };
 
 

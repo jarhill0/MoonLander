@@ -1,0 +1,1 @@
+To whomever is trying to run the GP with valgrind, it will say that there is an unknown instruction and must exit. This is a known bug. It will also say it is leaking about 74k bytes, but thats also because of a well known "feature".
