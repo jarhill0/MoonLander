@@ -1,0 +1,320 @@
+GUID
+System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+30c5a962-a368-4d42-89b9-19780b041d89
+]]]
+Animations
+System.Collections.ObjectModel.ObservableCollection`1[[SPArtAn.Animation, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null]], System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+[ITEM]
+SPArtAn.Animation, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+NEW
+GUID
+System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0fa61d20-dfe6-42fe-bddc-e6ef0688fbd1
+]]]
+Name
+System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+Idle
+]]]
+Directions
+System.Collections.ObjectModel.ObservableCollection`1[[SPArtAn.Facing, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null]], System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+[ITEM]
+SPArtAn.Facing, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+NEW
+GUID
+System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+14ce67b2-0a8c-4f5d-9887-afc500cfa0e1
+]]]
+Direction
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+Frames
+System.Collections.ObjectModel.ObservableCollection`1[[SPArtAn.Frame, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null]], System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+[ITEM]
+SPArtAn.Frame, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+NEW
+GUID
+System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+38637935-809e-43b0-ba52-2ff2a5ea40ac
+]]]
+HotSpotX
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+HotSpotY
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+Height
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+64
+]]]
+Width
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+64
+]]]
+Layers
+System.Collections.ObjectModel.ObservableCollection`1[[SPArtAn.Layer, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null]], System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+[ITEM]
+SPArtAn.Layer, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+NEW
+GUID
+System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+61685573-6b2f-410b-8343-c7a4892badc0
+]]]
+OffsetX
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+OffsetY
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+Width
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+64
+]]]
+Height
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+64
+]]]
+Image
+System.Windows.Controls.Image, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35
+[[[
+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
+]]]
+Opacity
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+1
+]]]
+IsVisible
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+True
+]]]
+Name
+System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+Layer 1
+]]]
+IsSelected
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+True
+]]]
+Parent
+SPArtAn.Frame, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+38637935-809e-43b0-ba52-2ff2a5ea40ac
+]]]
+]]]
+]]]
+U
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+V
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+IsSelected
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+True
+]]]
+Parent
+SPArtAn.Facing, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+14ce67b2-0a8c-4f5d-9887-afc500cfa0e1
+]]]
+]]]
+]]]
+IsSelected
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+True
+]]]
+Parent
+SPArtAn.Animation, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+0fa61d20-dfe6-42fe-bddc-e6ef0688fbd1
+]]]
+]]]
+]]]
+Parent
+SPArtAn.Sprite, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+30c5a962-a368-4d42-89b9-19780b041d89
+]]]
+IsSelected
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+True
+]]]
+]]]
+]]]
+IsSelected
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+True
+]]]
+Name
+System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+Unnamed Sprite
+]]]
+FileName
+System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+C:\Users\Ben\Documents\GitHub\MoonLander\img\terrain\generators\MoonTile4.sparta
+]]]
+IsBlank
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+False
+]]]
+RecentlySaved
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+False
+]]]
+Palette
+SPArtAn.Palette, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+NEW
+GUID
+System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+7336d883-3ca5-4508-8143-c85f8e2c2198
+]]]
+Image
+System.Windows.Controls.Image, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35
+[[[
+iVBORw0KGgoAAAANSUhEUgAAAOYAAAH0CAYAAAApA1GfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHVSURBVHhe7cEBDQAAAMKg909tDwcEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHCvBgc9AAH7RWjoAAAAAElFTkSuQmCC
+]]]
+ColourRanges
+System.Collections.ObjectModel.ObservableCollection`1[[SPArtAn.ColourRange, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null]], System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+[ITEM]
+SPArtAn.ColourRange, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+0:#FF000000|0.2:#FF303030|0.4:#FF616161|0.6:#FF919191|0.8:#FFC2C2C2
+]]]
+[ITEM]
+SPArtAn.ColourRange, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+0:#FF540000|0.2:#FFAB0000|0.4:#FFFF0000|0.6:#FFFF5454|0.8:#FFFFABAB
+]]]
+[ITEM]
+SPArtAn.ColourRange, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+0:#FF544800|0.2:#FFAB9100|0.4:#FFFFD900|0.6:#FFFFE554|0.8:#FFFFF2AB
+]]]
+[ITEM]
+SPArtAn.ColourRange, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+0:#FF185400|0.2:#FF30AB00|0.4:#FF48FF00|0.6:#FF85FF54|0.8:#FFC3FFAB
+]]]
+[ITEM]
+SPArtAn.ColourRange, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+0:#FF005430|0.2:#FF00AB61|0.4:#FF00FF91|0.6:#FF54FFB5|0.8:#FFABFFDB
+]]]
+[ITEM]
+SPArtAn.ColourRange, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+0:#FF003054|0.2:#FF0061AB|0.4:#FF0091FF|0.6:#FF54B5FF|0.8:#FFABDBFF
+]]]
+[ITEM]
+SPArtAn.ColourRange, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+0:#FF180054|0.2:#FF3000AB|0.4:#FF4800FF|0.6:#FF8554FF|0.8:#FFC3ABFF
+]]]
+[ITEM]
+SPArtAn.ColourRange, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+0:#FF540048|0.2:#FFAB0091|0.4:#FFFF00D9|0.6:#FFFF54E5|0.8:#FFFFABF2
+]]]
+]]]
+Name
+System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+Palette 1
+]]]
+Width
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+32
+]]]
+Height
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+32
+]]]
+OffsetX
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+OffsetY
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+Opacity
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+1
+]]]
+IsSelected
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+False
+]]]
+IsVisible
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+True
+]]]
+Parent
+SPArtAn.Frame, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+
+]]]
+]]]
+DefaultWidth
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+64
+]]]
+DefaultHeight
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+64
+]]]

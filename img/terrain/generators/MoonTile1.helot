@@ -1,0 +1,177 @@
+GUID
+System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+188209a0-ab1b-4387-95e3-f6723bb992f0
+]]]
+Title
+System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+Magma
+]]]
+SeedDefault
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+UseSelection
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+False
+]]]
+FileName
+System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+C:\Users\Ben\Documents\GitHub\MoonLander\img\terrain\generators\MoonTile2.helot
+]]]
+Children
+System.Collections.ObjectModel.ObservableCollection`1[[SPArtAn.Component, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null]], System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+[ITEM]
+SPArtAn.RandomPointsComponent, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+NEW
+GUID
+System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+51013d1c-3ef6-403b-b371-6bc2af329dfe
+]]]
+Scale
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+18.8095238095238
+]]]
+EdgeDistance
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+15
+]]]
+OuterSeed
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+InnerSeed
+System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0
+]]]
+Children
+System.Collections.ObjectModel.ObservableCollection`1[[SPArtAn.Component, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null]], System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+[ITEM]
+SPArtAn.VoronoiDivisionComponent, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+NEW
+GUID
+System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+d1e49f95-6ee6-45c5-9c84-d6a8598f585a
+]]]
+Children
+System.Collections.ObjectModel.ObservableCollection`1[[SPArtAn.Component, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null]], System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+[ITEM]
+SPArtAn.ShadeComponent, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+NEW
+GUID
+System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+16be9d54-436d-45bf-b309-b6e7f9a8a267
+]]]
+ColourRange
+SPArtAn.ColourRange, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+0:#FF000000|0.2:#FF303030|0.4:#FF616161|0.6:#FF919191|0.8:#FFC2C2C2
+]]]
+Invert
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+True
+]]]
+EdgeDistance
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+6
+]]]
+UpFactor
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+1.3
+]]]
+DownFactor
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+1
+]]]
+LeftFactor
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+2
+]]]
+RightFactor
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+2
+]]]
+Roughness
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0.128205128205128
+]]]
+PerlinSize
+System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+0.683760683760684
+]]]
+IgnoreTransparent
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+False
+]]]
+Parent
+SPArtAn.VoronoiDivisionComponent, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+d1e49f95-6ee6-45c5-9c84-d6a8598f585a
+]]]
+ErrorFlag
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+False
+]]]
+]]]
+]]]
+Parent
+SPArtAn.RandomPointsComponent, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+51013d1c-3ef6-403b-b371-6bc2af329dfe
+]]]
+ErrorFlag
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+False
+]]]
+]]]
+]]]
+Parent
+SPArtAn.RootComponent, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+188209a0-ab1b-4387-95e3-f6723bb992f0
+]]]
+ErrorFlag
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+False
+]]]
+]]]
+]]]
+Parent
+SPArtAn.ParentComponent, SPArtAn, Version=1.2.1.0, Culture=neutral, PublicKeyToken=null
+[[[
+
+]]]
+ErrorFlag
+System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+[[[
+False
+]]]
