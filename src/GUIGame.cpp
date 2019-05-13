@@ -1,6 +1,6 @@
 /* Provide the GUI for the game.
  *
- * Authors: Joey Rees-Hill, 
+ * Authors: Joey Rees-Hill, Ben Simon
  *
  * Date: April 2019
  */
