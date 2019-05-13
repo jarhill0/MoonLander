@@ -1,6 +1,6 @@
 /* Provide the GUI for the game.
  *
- * Authors: Joey Rees-Hill, 
+ * Authors: Joey Rees-Hill, Ben Simon
  *
  * Date: April 2019
  */
@@ -176,28 +176,9 @@ void ovalOffset(Sprite *sprite, double th, int *x_p, int *y_p) {
 void GameGUI::drawFrame(GameState gs) {
     SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0xff);
     SDL_RenderClear(gameRenderer);
-
-    // draw moon surface
+    
     int baseline = SCREEN_HEIGHT - moonTile->getHeight();
-    for (int x = 0; x < SCREEN_WIDTH; x += moonTile->getWidth()) {
-        renderSprite(moonTile, x, baseline);
-    }
-    // draw landing pad
-    SDL_SetRenderDrawColor(gameRenderer, 0xff, 0x00, 0x00, 0xff);
-    {
-        int xScale, yScale;
-        {
-            int width, height;
-            SDL_GL_GetDrawableSize(gameWindow, &width, &height);
-            xScale = width / SCREEN_WIDTH;
-            yScale = height / SCREEN_HEIGHT;
-        }
-        SDL_RenderDrawLine(gameRenderer, xScale * SCREEN_WIDTH / 2,
-                yScale * SCREEN_HEIGHT,
-                xScale * SCREEN_WIDTH / 2,
-                yScale * (SCREEN_HEIGHT - moonTile->getHeight()));
-    }
-
+    
     // draw rocket
     /* So... fun stuff here.
      *
@@ -236,6 +217,26 @@ void GameGUI::drawFrame(GameState gs) {
     int shipRot = -((gs.shipRotation * 180 / M_PI) - 90);
     renderSprite(rocket, shipXPos, shipYPos, shipRot);
 
+    // draw moon surface
+    for (int x = 0; x < SCREEN_WIDTH; x += moonTile->getWidth()) {
+        renderSprite(moonTile, x, baseline);
+    }
+    // draw landing pad
+    SDL_SetRenderDrawColor(gameRenderer, 0xff, 0x00, 0x00, 0xff);
+    {
+        int xScale, yScale;
+        {
+            int width, height;
+            SDL_GL_GetDrawableSize(gameWindow, &width, &height);
+            xScale = width / SCREEN_WIDTH;
+            yScale = height / SCREEN_HEIGHT;
+        }
+        SDL_RenderDrawLine(gameRenderer, xScale * SCREEN_WIDTH / 2,
+                yScale * SCREEN_HEIGHT,
+                xScale * SCREEN_WIDTH / 2,
+                yScale * (SCREEN_HEIGHT - moonTile->getHeight()));
+    }
+
     // draw fuel remaining
     int width, height;
     SDL_GL_GetDrawableSize(gameWindow, &width, &height);
@@ -249,12 +250,8 @@ void GameGUI::drawFrame(GameState gs) {
     // draw velocity bar
     double totVelocity = hypot(gs.shipYVelocity, gs.shipXVelocity);
     //TODO deal with this
-    double velocityThreshold = 5;
-    int barMax = 100;
+    double velocityThreshold = 3;
     int barWidth = (int)((totVelocity / velocityThreshold) * 100 * xScale);
-    if(barWidth  > barMax){
-        barWidth = barMax;
-    } 
 
     int colorBase = 0xff - (0xff * (totVelocity / velocityThreshold));
     if(colorBase < 0) {

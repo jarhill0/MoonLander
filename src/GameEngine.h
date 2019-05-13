@@ -1,6 +1,6 @@
 /* Expose the game engine.
  *
- * Author: Joey Rees-Hill
+ * Author: Joey Rees-Hill, William Knowles-Kellett
  *
  * Date: April 2019
  */
