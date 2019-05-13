@@ -63,6 +63,7 @@ class GameGUI {
         Sprite *rocket;
         Sprite *moonTile;
         Sprite *scoreSprite;
+        Sprite *landingPad;
         bool gameOver;
         int starsX[NUM_STARS];
         int starsY[NUM_STARS];
@@ -115,6 +116,7 @@ GameGUI::GameGUI(bool bounded) {
     rocket = new Sprite();
     moonTile = new Sprite();
     scoreSprite = new Sprite();
+    landingPad = new Sprite();
 
     if (!loadMedia()) {
         puts("Couldn't load media!");
@@ -137,6 +139,11 @@ bool GameGUI::loadMedia() {
 
     if (!moonTile->loadFile("img/moontile.png", gameRenderer)) {
         puts("Failed to load moon tile!");
+        return false;
+    }
+
+    if (!landingPad->loadFile("img/landingpad.png", gameRenderer)) {
+        fprintf(stderr, "Failed to load landing pad!\n");
         return false;
     }
 
@@ -325,6 +332,8 @@ void GameGUI::drawFrame(GameState gs) {
         renderSprite(moonTile, x, baseline);
     }
     // draw landing pad
+    renderSprite(landingPad, (SCREEN_WIDTH - landingPad->getWidth()) / 2,
+            baseline - landingPad->getHeight());
     SDL_SetRenderDrawColor(gameRenderer, 0xff, 0x00, 0x00, 0xff);
     {
         int xScale, yScale;
@@ -411,6 +420,7 @@ GameGUI::~GameGUI() {
     delete rocket;
     delete moonTile;
     delete scoreSprite;
+    delete landingPad;
 
     TTF_CloseFont(textFont);
     textFont = NULL;
