@@ -6,12 +6,13 @@ MoonLander requires the following libraries:
 
 - `SDL2`
 - `SDL2_img`
+- `SDL2_ttf`
 
 along with the following tools:
 
 - `pkg-config`
 
-To install on Mac, run `brew install SDL2 SDL2_img pkg-config`. On other
+To install on Mac, run `brew install SDL2 SDL2_img SDL2_ttf pkg-config`. On other
 platforms, use your package manager of choice.
 
 ## Build
