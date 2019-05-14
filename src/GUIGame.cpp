@@ -29,7 +29,7 @@ class Sprite {
         ~Sprite(void);
 
         bool loadFile(std::string, SDL_Renderer*);
-        bool loadText(std::string, SDL_Color, TTF_Font*, SDL_Renderer*);
+        bool loadText(std::string, SDL_Color, TTF_Font*, int, SDL_Renderer*);
         void free(void);
         int getWidth(void);
         int getHeight(void);
@@ -63,10 +63,10 @@ class GameGUI {
         SDL_Renderer *gameRenderer;
         Sprite *rocket;
         Sprite *moonTile;
-        Sprite *scoreSprite;
         Sprite *landingPadFront;
         Sprite *landingPadBack;
-        bool gameOver;
+        Sprite *textSprite;
+        bool gameStarted, gameOver;
         int starsX[NUM_STARS];
         int starsY[NUM_STARS];
         TTF_Font *textFont;
@@ -117,9 +117,9 @@ GameGUI::GameGUI(bool bounded) {
 
     rocket = new Sprite();
     moonTile = new Sprite();
-    scoreSprite = new Sprite();
     landingPadFront = new Sprite();
     landingPadBack = new Sprite();
+    textSprite = new Sprite();
 
     if (!loadMedia()) {
         puts("Couldn't load media!");
@@ -152,6 +152,13 @@ bool GameGUI::loadMedia() {
 
     if (!landingPadBack->loadFile("img/landingpad-back.png", gameRenderer)) {
         fprintf(stderr, "Failed to load landing pad back!\n");
+        return false;
+    }
+
+    if (!textSprite->loadText("Press enter to start.",
+                {0xff, 0xff, 0xff, 0xff},
+                textFont, 291, gameRenderer)) {
+        fprintf(stderr, "Failed to render text.\n");
         return false;
     }
 
@@ -205,6 +212,7 @@ void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
     BitBuffer buffer(inpDump);
 
     bool quit = false;
+    gameOver = gameStarted = false;
     SDL_Event ev;
     Uint32 frameStartTime = SDL_GetTicks();
     while (!quit) {
@@ -219,10 +227,19 @@ void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
                     quit = true;
                     break;
                 }
+                if (gameOver) {
+                    drawFrame(engine.getState());
+                }
             }
         }
 
-        if (!gameOver) {
+        if (!gameStarted) {
+            const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
+            if (keysPressed[SDL_SCANCODE_RETURN]) {
+                gameStarted = true;
+            }
+            drawFrame(engine.getState());
+        } else if (!gameOver) {
             InputState inp;
             if (inpFromFile) {
                 inp = {buffer.getBit(), buffer.getBit(), buffer.getBit()};
@@ -264,7 +281,10 @@ bool GameGUI::handleResize() {
         return false;
 
     return rocket->switchRenderer(gameRenderer)
-        && moonTile->switchRenderer(gameRenderer);
+        && moonTile->switchRenderer(gameRenderer)
+        && textSprite->switchRenderer(gameRenderer)
+        && landingPadBack->switchRenderer(gameRenderer)
+        && landingPadFront->switchRenderer(gameRenderer);
 }
 
 // Calculate x- and y-offsets for a rectangular sprite based on an elliptical
@@ -392,11 +412,15 @@ void GameGUI::drawFrame(GameState gs) {
         } else {
             textColor = {0xff, 0x20, 0x00, 0xff};
         }
-        scoreSprite->loadText(scoreText, textColor, textFont, gameRenderer);
-        int textX = (SCREEN_WIDTH - scoreSprite->getWidth()) / 2;
-        int textY = (SCREEN_HEIGHT - scoreSprite->getHeight()) / 2;
-        renderSprite(scoreSprite, textX, textY);
+        textSprite->loadText(scoreText, textColor, textFont, 172, gameRenderer);
+        int textX = (SCREEN_WIDTH - textSprite->getWidth()) / 2;
+        int textY = (SCREEN_HEIGHT - textSprite->getHeight()) / 2;
+        renderSprite(textSprite, textX, textY);
         printf("Real score: %f\n", gs.score);
+    } else if (!gameStarted) {
+        int textX = (SCREEN_WIDTH - textSprite->getWidth()) / 2;
+        int textY = (SCREEN_HEIGHT - textSprite->getHeight()) / 2;
+        renderSprite(textSprite, textX, textY);
     }
     
     SDL_RenderPresent(gameRenderer);
@@ -419,9 +443,9 @@ void GameGUI::initStars() {
 GameGUI::~GameGUI() {
     delete rocket;
     delete moonTile;
-    delete scoreSprite;
     delete landingPadFront;
     delete landingPadBack;
+    delete textSprite;
 
     TTF_CloseFont(textFont);
     textFont = NULL;
@@ -461,11 +485,11 @@ bool Sprite::loadFile(std::string path, SDL_Renderer *renderer) {
 }
 
 bool Sprite::loadText(std::string text, SDL_Color color, TTF_Font *font,
-        SDL_Renderer *renderer) {
+        int textWidth, SDL_Renderer *renderer) {
     free();
 
     loadedSurface = TTF_RenderText_Blended_Wrapped(font, text.c_str(), color,
-            172);  // last parameter is text width
+            textWidth);
     // see https://stackoverflow.com/a/18418688/
     if (NULL == loadedSurface) {
         fprintf(stderr, "Couldn't render text: %s\n", SDL_GetError());
