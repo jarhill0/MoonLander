@@ -13,7 +13,7 @@
 #include <cmath>
 
 const double START_FUEL = 100;
-const double START_X_POS = -100;
+const double START_X_POS = -300;
 const double START_Y_POS = 500;
 const double START_ROT = M_PI / 2.0;
 const double START_X_VEL = 0;
@@ -25,5 +25,9 @@ const double MAIN_THRUST_ACC = 0.015;
 const double SIDE_THRUST_ACC = 0.001;
 const double MAIN_THRUST_FUEL_USE = 0.1;
 const double SIDE_THRUST_FUEL_USE = 0.05;
+
+// GUI-related constants
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
 
 #endif

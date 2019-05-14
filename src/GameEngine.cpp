@@ -7,9 +7,27 @@
 
 #include "GameEngine.h"
 #include "const.h" // also includes math.h
+#include <tuple>
+#include <iostream>
+
+InputState::InputState(bool m, bool l, bool r) {
+    mainThruster = m;
+    rotLeftThruster = l;
+    rotRightThruster = r;
+}
+
+InputState::InputState(){}
+
+void InputState::print() {
+    std::cout << mainThruster << rotLeftThruster << rotRightThruster;
+}
 
 // Constructor
 GameEngine::GameEngine() {
+    setDefaultFields();
+}
+
+void GameEngine::setDefaultFields() {
     fuel = START_FUEL;
 
     shipYPos = START_Y_POS;
@@ -103,7 +121,7 @@ void GameEngine::calculateScore() {
     xDiff /= 20;
     xDiff *= xDiff;
     double shipVel = sqrt(shipXVel * shipXVel + shipYVel * shipYVel);
-    shipVel *= 35;
+    shipVel *= 30;
     double upright = shipRotation - M_PI / 2;
     upright = upright > 0 ? upright : -upright;
     upright *= 20;
@@ -129,3 +147,4 @@ bool GameEngine::checkBounds() {
         shipXPos <= rightBound &&
         shipYPos <= topBound;
 }
+
