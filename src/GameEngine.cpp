@@ -1,6 +1,6 @@
 /* Provide the game engine.
  *
- * Author: Joey Rees-Hill
+ * Author: Joey Rees-Hill, William Knowles-Kellett
  *
  * Date: April 2019
  */
@@ -91,12 +91,9 @@ GameState GameEngine::step(InputState input) {
     return makeState();
 }
 
-// get the state without stepping the game. yeah, ik, kinda stupid to call out
-// to this other method that already exists.
 GameState GameEngine::getState() {
     return makeState();
 }
-
 
 GameState GameEngine::makeState() {
     return {
@@ -120,10 +117,11 @@ void GameEngine::applyVelocity() {
 
 void GameEngine::calculateScore() {
     // all component values should be positive
-    double xDiff = shipXPos > 0 ? -shipXPos : -shipXPos;
+    double xDiff = shipXPos;
     xDiff /= 20;
+    xDiff *= xDiff;
     double shipVel = sqrt(shipXVel * shipXVel + shipYVel * shipYVel);
-    shipVel *= 50;
+    shipVel *= 35;
     double upright = shipRotation - M_PI / 2;
     upright = upright > 0 ? upright : -upright;
     upright *= 20;

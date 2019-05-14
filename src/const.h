@@ -26,4 +26,8 @@ const double SIDE_THRUST_ACC = 0.001;
 const double MAIN_THRUST_FUEL_USE = 0.1;
 const double SIDE_THRUST_FUEL_USE = 0.05;
 
+// GUI-related constants
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
+
 #endif

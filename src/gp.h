@@ -14,12 +14,9 @@
 #include <memory>
 #include <algorithm>
 #include "GameEngine.h"
-
+#include "const.h"
 
 using namespace std;
-
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
 
 #define POPULATION_SIZE 100
 #define UNIT_SIZE 200 // must divide SCREEN_WIDTH and HEIGHT
