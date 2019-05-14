@@ -73,6 +73,10 @@ GameState GameEngine::step(InputState input) {
     return makeState();
 }
 
+GameState GameEngine::getState() {
+    return makeState();
+}
+
 GameState GameEngine::makeState() {
     return {
         fuel,  // fuel
