@@ -21,7 +21,7 @@ const int FPS = 60;
 const int TICKS_PER_FRAME = 1000 / FPS;
 const int NUM_STARS = 420;
 const int FONT_SIZE = 32;
-const int LANDINGPAD_Y_OFFSET = 11;
+const int LANDINGPAD_Y_OFFSET = 20;
 
 class Sprite {
     public:
