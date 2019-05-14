@@ -13,19 +13,24 @@
 #include <assert.h>
 #include <memory>
 #include <algorithm>
+#include <string.h>
+#include "BitBuffer.h"
 #include "GameEngine.h"
 #include "const.h"
 
 using namespace std;
 
+#define MOON_TILE_HEIGHT 64
+
 #define POPULATION_SIZE 100
-#define UNIT_SIZE 200 // must divide SCREEN_WIDTH and HEIGHT
+#define UNIT_SIZE 40 // must divide SCREEN_WIDTH and HEIGHT
 #define DEFAULT_FITNESS INT_MIN
-#define TOURNAMENT_SIZE 3
-#define ELITE_SIZE 2
-#define GENERATIONS 20
+#define TOURNAMENT_SIZE 2
+#define ELITE_SIZE 3
+#define GENERATIONS 1000
 #define MUTATION_PROBABILITY 20
 #define CROSSOVER_PROBABILITY 80
+#define SURVIVE 70
 
 const int VECT_W = SCREEN_WIDTH/UNIT_SIZE;
 const int HALF_W = SCREEN_WIDTH/2;
@@ -45,7 +50,7 @@ class Individual {
 
 
 class RandGen {
-    mt19937 rand_gen;
+    mt19937 randGen;
     unsigned seed;
 
     public:
@@ -56,6 +61,8 @@ class RandGen {
         int randInt(int min, int max);
         bool randBool(void);
 	tuple<int,int,int,int> randIndices(Individual *i);
+
+	bool randBool75(void);
 };
 
 
@@ -63,25 +70,31 @@ class RandGen {
 class GP {
     public:
         GP(void);
+	GP(FILE *o);
        ~GP(void);
+       
         int popSize;
 	int tournamentSize;
 	int eliteSize;
 	int generations;
 	int mutationProbability;
 	int crossoverProbability;
-        
+	int survive; 
         vector<Individual *> pop;
         RandGen r;
+	FILE *output;
+	BitBuffer *buffer;
+
+	void defaultInit();
         void initPop(void);
         void mutate(Individual *i);
         tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2);
-	static void evaluate(Individual *);
+	void evaluate(Individual *i, bool print=false);
 	void sortPopulation(void);
-	vector<Individual *> tournamentSelection(void);
+	vector<Individual *> tournamentSelection(vector<Individual *> p);
 	static void sortPopulation(vector<Individual *> p);
 	void generationalReplacement(vector<Individual *> newPop, vector<Individual *> oldPop);
-	static void evaluatePopulation(vector<Individual *> p);
+        void evaluatePopulation(vector<Individual *> p);
 	Individual *searchLoop(vector<Individual *> p);
 };
 
