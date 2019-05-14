@@ -16,12 +16,10 @@
 #include <string.h>
 #include "BitBuffer.h"
 #include "GameEngine.h"
-
+#include "const.h"
 
 using namespace std;
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
 #define MOON_TILE_HEIGHT 64
 
 #define POPULATION_SIZE 5

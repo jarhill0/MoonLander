@@ -91,12 +91,9 @@ GameState GameEngine::step(InputState input) {
     return makeState();
 }
 
-// get the state without stepping the game. yeah, ik, kinda stupid to call out
-// to this other method that already exists.
 GameState GameEngine::getState() {
     return makeState();
 }
-
 
 GameState GameEngine::makeState() {
     return {
@@ -120,8 +117,9 @@ void GameEngine::applyVelocity() {
 
 void GameEngine::calculateScore() {
     // all component values should be positive
-    double xDiff = shipXPos > 0 ? -shipXPos : -shipXPos;
-    xDiff /= 5;
+    double xDiff = shipXPos;
+    xDiff /= 20;
+    xDiff *= xDiff;
     double shipVel = sqrt(shipXVel * shipXVel + shipYVel * shipYVel);
     shipVel *= 30;
     double upright = shipRotation - M_PI / 2;
