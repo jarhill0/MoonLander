@@ -35,6 +35,7 @@ class GameEngine {
     public:
         GameEngine();  // constructor
         GameState step(InputState input);
+        GameState getState();  // get state without stepping
         void setBounds(int, int, int);
     private:
         double fuel;
