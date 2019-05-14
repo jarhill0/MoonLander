@@ -13,7 +13,7 @@
 #include <cmath>
 
 const double START_FUEL = 100;
-const double START_X_POS = -100;
+const double START_X_POS = -300;
 const double START_Y_POS = 500;
 const double START_ROT = M_PI / 2.0;
 const double START_X_VEL = 0;

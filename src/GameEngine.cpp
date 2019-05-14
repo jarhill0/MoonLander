@@ -121,9 +121,9 @@ void GameEngine::applyVelocity() {
 void GameEngine::calculateScore() {
     // all component values should be positive
     double xDiff = shipXPos > 0 ? -shipXPos : -shipXPos;
-    xDiff /= 20;
+    xDiff /= 5;
     double shipVel = sqrt(shipXVel * shipXVel + shipYVel * shipYVel);
-    shipVel *= 50;
+    shipVel *= 30;
     double upright = shipRotation - M_PI / 2;
     upright = upright > 0 ? upright : -upright;
     upright *= 20;
@@ -145,7 +145,6 @@ void GameEngine::setBounds(int left, int right, int top) {
 }
 
 bool GameEngine::checkBounds() {
-    // std::cout << shipXPos << " " << shipYPos << " " << topBound << std::endl;
     return shipXPos >= leftBound &&
         shipXPos <= rightBound &&
         shipYPos <= topBound;

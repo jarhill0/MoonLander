@@ -16,8 +16,7 @@ BitBuffer::BitBuffer(FILE* f) {
     buffer = 0;
 }
 
-BitBuffer::~BitBuffer() {
-}
+BitBuffer::~BitBuffer() {} // Why is this neccessary? CPP implements one automatically
 
 bool BitBuffer::getBit() {
     if (0 == bit_count) {

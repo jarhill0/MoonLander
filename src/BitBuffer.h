@@ -15,11 +15,12 @@ class BitBuffer {
         bool getBit(void);
         void putBit(bool);
         void flush(void);
-
+	
     private:
-        FILE *file;
-        unsigned char buffer;
         int bit_count;
+	unsigned char buffer;
+	FILE *file;
+
 };
 
 #endif
