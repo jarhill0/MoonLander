@@ -65,6 +65,7 @@ class GameGUI {
         Sprite *moonTile;
         Sprite *landingPadFront;
         Sprite *landingPadBack;
+        Sprite *flame;
         Sprite *textSprite;
         bool gameStarted, gameOver;
         int starsX[NUM_STARS];
@@ -119,6 +120,7 @@ GameGUI::GameGUI(bool bounded) {
     moonTile = new Sprite();
     landingPadFront = new Sprite();
     landingPadBack = new Sprite();
+    flame = new Sprite();
     textSprite = new Sprite();
 
     if (!loadMedia()) {
@@ -152,6 +154,11 @@ bool GameGUI::loadMedia() {
 
     if (!landingPadBack->loadFile("img/landingpad-back.png", gameRenderer)) {
         fprintf(stderr, "Failed to load landing pad back!\n");
+        return false;
+    }
+
+    if (!flame->loadFile("img/flame.png", gameRenderer)) {
+        fprintf(stderr, "Failed to load flame!\n");
         return false;
     }
 
@@ -284,7 +291,8 @@ bool GameGUI::handleResize() {
         && moonTile->switchRenderer(gameRenderer)
         && textSprite->switchRenderer(gameRenderer)
         && landingPadBack->switchRenderer(gameRenderer)
-        && landingPadFront->switchRenderer(gameRenderer);
+        && landingPadFront->switchRenderer(gameRenderer)
+        && flame->switchRenderer(gameRenderer);
 }
 
 // Calculate x- and y-offsets for a rectangular sprite based on an elliptical
@@ -312,7 +320,7 @@ void ovalOffset(Sprite *sprite, double th, int *x_p, int *y_p) {
 void GameGUI::drawFrame(GameState gs) {
     SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0xff);
     SDL_RenderClear(gameRenderer);
-    
+
     int baseline = SCREEN_HEIGHT - moonTile->getHeight();
 
     drawStars();
@@ -366,6 +374,36 @@ void GameGUI::drawFrame(GameState gs) {
     int shipRot = -((gs.shipRotation * 180 / M_PI) - 90);
     renderSprite(rocket, shipXPos, shipYPos, shipRot);
 
+    // draw thruster flames
+
+    const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
+
+    int shipCenterX = shipXPos + rocket->getWidth() / 2;
+    int shipCenterY = shipYPos + rocket->getHeight() / 2;
+    int xOffset = sin(gs.shipRotation - M_PI/2) * rocket->getWidth() / 2;
+    int yOffset = cos(gs.shipRotation - M_PI/2) * rocket->getHeight() / 2;
+
+    // draw main thruster
+    if(gameStarted && (bool) keysPressed[SDL_SCANCODE_UP]){
+      int mainX = shipCenterX - flame->getWidth() / 2 + xOffset;
+      int mainY = shipCenterY - flame->getHeight() / 2 + yOffset;
+      renderSprite(flame, mainX, mainY, shipRot + 180);
+    }
+
+    // draw left thruster
+    if(gameStarted && (bool) keysPressed[SDL_SCANCODE_RIGHT]){
+      int leftX = shipCenterX - flame->getWidth() / 2 - yOffset;
+      int leftY = shipCenterY - flame->getHeight() / 2 + xOffset;
+      renderSprite(flame, leftX, leftY, shipRot - 90);
+    }
+
+    // draw right thruster
+    if(gameStarted && (bool) keysPressed[SDL_SCANCODE_LEFT]){
+      int rightX = shipCenterX - flame->getWidth() / 2 + yOffset;
+      int rightY = shipCenterY - flame->getHeight() / 2 - xOffset;
+      renderSprite(flame, rightX, rightY, shipRot + 90);
+    }
+
     // draw landing pad front
     renderSprite(landingPadFront, landingPadX, landingPadY);
 
@@ -377,7 +415,7 @@ void GameGUI::drawFrame(GameState gs) {
     SDL_SetRenderDrawColor(gameRenderer, 0x00, 0xe0, 0x10, 0xf0);
     SDL_Rect fillRect = {20 * xScale, 20 * yScale, (int) (gs.fuel * xScale),
         20 * yScale};
-    SDL_RenderFillRect(gameRenderer, &fillRect); 
+    SDL_RenderFillRect(gameRenderer, &fillRect);
 
     // draw velocity bar
     double totVelocity = hypot(gs.shipYVelocity, gs.shipXVelocity);
@@ -422,7 +460,7 @@ void GameGUI::drawFrame(GameState gs) {
         int textY = (SCREEN_HEIGHT - textSprite->getHeight()) / 2;
         renderSprite(textSprite, textX, textY);
     }
-    
+
     SDL_RenderPresent(gameRenderer);
 }
 
