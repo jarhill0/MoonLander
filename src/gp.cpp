@@ -3,7 +3,7 @@
 using namespace std;
 
 FILE *getOutputFile(int argc, char *argv[]);
-
+bool compareIndividuals(Individual *i1, Individual *i2);
 
 int main (int argc, char *argv[]) {
     assert(SCREEN_WIDTH % UNIT_SIZE == 0);
@@ -104,6 +104,14 @@ Individual& Individual::operator=(Individual i) {
     return *this;
 }
 
+bool Individual::operator<(const Individual &i) {
+    return compare(*this, i);
+}
+
+bool Individual::compare(const Individual& i1, const Individual& i2) {
+    return i1.fitness < i2.fitness;
+}
+
 void Individual::print() {
     cout << "Fitness: " << fitness << endl;
     for (vector<InputState *> j : inputs) {
@@ -127,7 +135,8 @@ Individual::~Individual() {
 }
 
 RandGen::RandGen() {
-    seed = genSeed();
+    seed = 0;
+    // seed = genSeed();
     randGen.seed(seed);
 }
 
@@ -137,7 +146,7 @@ RandGen::RandGen(unsigned s) {
 }
 
 InputState *RandGen::randState() {
-    return new InputState {randBool75(), !randBool75(), !randBool75()};
+    return new InputState {randBool(), randBool(), randBool()};
 }
 
 int RandGen::randInt(int min, int max) {
@@ -236,9 +245,9 @@ void GP::mutate(Individual *ind) {
     
     for (int i = r1; i < r2; i++) {
 	for (int k = c1; k < c2; k++) {
-	    ind->inputs[i][k]->mainThruster = r.randBool75();
-	    ind->inputs[i][k]->rotLeftThruster = !r.randBool75();
-	    ind->inputs[i][k]->rotRightThruster = !r.randBool75();
+	    ind->inputs[i][k]->mainThruster = r.randBool();
+	    ind->inputs[i][k]->rotLeftThruster = !r.randBool();
+	    ind->inputs[i][k]->rotRightThruster = !r.randBool();
 	}
     }
 }
@@ -305,7 +314,6 @@ void GP::evaluate(Individual *i, bool print) {
 		if (is->rotRightThruster == 0x0) cout << "0";
 		else cout << "1";
 
-
 		buffer->putBit(is->mainThruster);
 		buffer->putBit(is->rotLeftThruster);
 		buffer->putBit(is->rotRightThruster);
@@ -319,12 +327,12 @@ void GP::evaluate(Individual *i, bool print) {
 }
 
 bool compareIndividuals(Individual *i1, Individual *i2) {
-    return (i1->fitness < i2->fitness);
+    cout << "foo";
+    return (*i1) < *(i2);
 }
 
-
 void GP::sortPopulation(vector<Individual *> p) {
-    std::sort(p.begin(), p.end(), compareIndividuals);
+    sort(p.begin(), p.end());
 }
 
 vector<Individual *> GP::tournamentSelection(vector<Individual *> p) {
@@ -352,10 +360,10 @@ vector<Individual *> GP::tournamentSelection(vector<Individual *> p) {
 }
 
 void GP::generationalReplacement(vector<Individual *> newPop, vector<Individual *> oldPop) {
-    sortPopulation(newPop);
     sortPopulation(oldPop);
+    sortPopulation(newPop);
 
-    for (int i=0; i < eliteSize; i++) {
+    for (int i = 0; i < eliteSize; i++) {
 	// Elite individuals are always propogated
 	*(newPop[popSize - i - 1]) = *(oldPop[i]);
 	oldPop[i] = nullptr;
@@ -368,7 +376,6 @@ Individual *GP::searchLoop(vector<Individual *> p) {
     sortPopulation(p);
 
     Individual *bestEver = p[0];
-
     int gen = 1;
 
     while (gen < generations) {
@@ -381,22 +388,14 @@ Individual *GP::searchLoop(vector<Individual *> p) {
 
 	// Crossover
 	while (newPopIndex < popSize) {
-	    int idx = r.randInt(0, popSize - 1);
-	    
-	    Individual *p1;
-	    Individual *p2;
-
-	    p1 = parents[idx];
-
-	    p2 = parents[r.randInt(0, popSize - 2)];
+	    Individual *p1 = parents[r.randInt(0, popSize - 1)];
+	    Individual *p2 = parents[r.randInt(0, popSize - 2)];
 
 	    assert(p1 != nullptr && p2 != nullptr);
 	    
 	    tuple<Individual *,  Individual *> children = crossover(p1, p2);
-	    evaluate(get<0>(children));
 
 	    // Append first child to population.
-
 	    newPop[newPopIndex++] = get<0>(children);
 
 	    // Wait to add the second child to ensure that you are not adding one too many.
@@ -413,15 +412,31 @@ Individual *GP::searchLoop(vector<Individual *> p) {
 
 	evaluatePopulation(newPop);
 
-	generationalReplacement(newPop, p);
+	sortPopulation(p);
+	sortPopulation(newPop);
+	
+	for (Individual *i : p) {
+	    cout << i -> fitness << endl;
+	}
 
-	p.swap(newPop);
+	cout << "---------------------------" << endl;
+	
+	for (Individual *i : newPop) {
+	    cout << i -> fitness << endl;
+	}
+
+	cout << "##########################" << endl;
+	
+	generationalReplacement(p, newPop);
+	
+	// p = newPop;
+	// p.swap(newPop);
 
 	sortPopulation(p);
 
 	*bestEver = *p[0];
 	
-	cout << bestEver -> fitness << endl;
+	// cout << bestEver -> fitness << endl;
 
 	gen++;
     }

@@ -24,13 +24,13 @@ using namespace std;
 #define SCREEN_HEIGHT 600
 #define MOON_TILE_HEIGHT 64
 
-#define POPULATION_SIZE 100
+#define POPULATION_SIZE 5
 #define UNIT_SIZE 40 // must divide SCREEN_WIDTH and HEIGHT
 #define DEFAULT_FITNESS INT_MIN
-#define TOURNAMENT_SIZE 2
-#define ELITE_SIZE 3
-#define GENERATIONS 1000
-#define MUTATION_PROBABILITY 20
+#define TOURNAMENT_SIZE 3
+#define ELITE_SIZE 2
+#define GENERATIONS 5
+#define MUTATION_PROBABILITY 5
 #define CROSSOVER_PROBABILITY 80
 #define SURVIVE 70
 
@@ -47,6 +47,8 @@ class Individual {
 	~Individual(void);
 	Individual(const Individual &i);
 	Individual &operator=(Individual i);
+	bool operator<(const Individual &i);
+	static bool compare(const Individual& i1, const Individual& i2);
         void print(void);
 };
 
