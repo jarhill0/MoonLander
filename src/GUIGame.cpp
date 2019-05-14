@@ -22,6 +22,7 @@ const int TICKS_PER_FRAME = 1000 / FPS;
 const int NUM_STARS = 420;
 const int FONT_SIZE = 32;
 const int LANDINGPAD_Y_OFFSET = 20;
+const int FLAME_MAX = 6;
 
 class Sprite {
     public:
@@ -65,7 +66,7 @@ class GameGUI {
         Sprite *moonTile;
         Sprite *landingPadFront;
         Sprite *landingPadBack;
-        Sprite *flame;
+        Sprite *flames[FLAME_MAX];
         Sprite *textSprite;
         bool gameStarted, gameOver;
         int starsX[NUM_STARS];
@@ -120,7 +121,9 @@ GameGUI::GameGUI(bool bounded) {
     moonTile = new Sprite();
     landingPadFront = new Sprite();
     landingPadBack = new Sprite();
-    flame = new Sprite();
+    for(int i = 0; i < FLAME_MAX; i++){
+      flames[i] = new Sprite();
+      }
     textSprite = new Sprite();
 
     if (!loadMedia()) {
@@ -157,9 +160,11 @@ bool GameGUI::loadMedia() {
         return false;
     }
 
-    if (!flame->loadFile("img/flame.png", gameRenderer)) {
-        fprintf(stderr, "Failed to load flame!\n");
-        return false;
+    for(int i = 0; i < FLAME_MAX; i++){
+      if (!flames[i]->loadFile("img/flame" + std::to_string(i) + ".png", gameRenderer)) {
+          fprintf(stderr, "Failed to load flame %d!\n", i);
+          return false;
+      }
     }
 
     if (!textSprite->loadText("Press enter to start.",
@@ -292,7 +297,13 @@ bool GameGUI::handleResize() {
         && textSprite->switchRenderer(gameRenderer)
         && landingPadBack->switchRenderer(gameRenderer)
         && landingPadFront->switchRenderer(gameRenderer)
-        && flame->switchRenderer(gameRenderer);
+        && flames[0]->switchRenderer(gameRenderer)
+        && flames[1]->switchRenderer(gameRenderer)
+        && flames[2]->switchRenderer(gameRenderer)
+        && flames[3]->switchRenderer(gameRenderer)
+        && flames[4]->switchRenderer(gameRenderer)
+        && flames[5]->switchRenderer(gameRenderer);
+        //TODO: Make this work for any number of flame grpahics
 }
 
 // Calculate x- and y-offsets for a rectangular sprite based on an elliptical
@@ -374,7 +385,9 @@ void GameGUI::drawFrame(GameState gs) {
     int shipRot = -((gs.shipRotation * 180 / M_PI) - 90);
     renderSprite(rocket, shipXPos, shipYPos, shipRot);
 
-    // draw thruster flames
+    // Draw thruster flames
+    // Animates flames turning on and off
+    // Actual thurst is not impacted
 
     const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
 
@@ -384,24 +397,59 @@ void GameGUI::drawFrame(GameState gs) {
     int yOffset = cos(gs.shipRotation - M_PI/2) * rocket->getHeight() / 2;
 
     // draw main thruster
-    if(gameStarted && (bool) keysPressed[SDL_SCANCODE_UP]){
-      int mainX = shipCenterX - flame->getWidth() / 2 + xOffset;
-      int mainY = shipCenterY - flame->getHeight() / 2 + yOffset;
-      renderSprite(flame, mainX, mainY, shipRot + 180);
-    }
+    if(gameStarted){
+      static int mainStage = 0;
 
-    // draw left thruster
-    if(gameStarted && (bool) keysPressed[SDL_SCANCODE_RIGHT]){
-      int leftX = shipCenterX - flame->getWidth() / 2 - yOffset;
-      int leftY = shipCenterY - flame->getHeight() / 2 + xOffset;
-      renderSprite(flame, leftX, leftY, shipRot - 90);
-    }
+      if((bool) keysPressed[SDL_SCANCODE_UP]){
+        if(mainStage < FLAME_MAX - 1)
+          mainStage++;
+      }
+      else{
+        if(mainStage > 0)
+          mainStage--;
+      }
 
-    // draw right thruster
-    if(gameStarted && (bool) keysPressed[SDL_SCANCODE_LEFT]){
-      int rightX = shipCenterX - flame->getWidth() / 2 + yOffset;
-      int rightY = shipCenterY - flame->getHeight() / 2 - xOffset;
-      renderSprite(flame, rightX, rightY, shipRot + 90);
+      if(mainStage > 0){
+        int mainX = shipCenterX - flames[mainStage]->getWidth() / 2 + xOffset;
+        int mainY = shipCenterY - flames[mainStage]->getHeight() / 2 + yOffset;
+        renderSprite(flames[mainStage], mainX, mainY, shipRot + 180);
+      }
+
+      // draw left thruster
+      static int leftStage = 0;
+
+      if((bool) keysPressed[SDL_SCANCODE_RIGHT]){
+        if(leftStage < FLAME_MAX - 1)
+          leftStage++;
+      }
+      else{
+        if(leftStage > 0)
+          leftStage--;
+      }
+
+      if(leftStage > 0){
+        int leftX = shipCenterX - flames[leftStage]->getWidth() / 2 - yOffset;
+        int leftY = shipCenterY - flames[leftStage]->getHeight() / 2 + xOffset;
+        renderSprite(flames[leftStage], leftX, leftY, shipRot - 90);
+      }
+
+      // draw right thruster
+      static int rightStage = 0;
+
+      if((bool) keysPressed[SDL_SCANCODE_LEFT]){
+        if(rightStage < FLAME_MAX - 1)
+          rightStage++;
+      }
+      else{
+        if(rightStage > 0)
+          rightStage--;
+      }
+
+      if(rightStage > 0){
+        int rightX = shipCenterX - flames[rightStage]->getWidth() / 2 + yOffset;
+        int rightY = shipCenterY - flames[rightStage]->getHeight() / 2 - xOffset;
+        renderSprite(flames[rightStage], rightX, rightY, shipRot + 90);
+      }
     }
 
     // draw landing pad front
