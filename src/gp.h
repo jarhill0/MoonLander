@@ -45,7 +45,6 @@ public:
 
     ~Individual(void);
 
-    Individual(const Individual &i);
     bool operator < (const Individual &i);
     void print(void);
 };
@@ -104,11 +103,9 @@ public:
 
     void evaluate(Individual *i, bool print = false);
 
-    void sortPopulation(void);
+    static void sortPopulation(vector<Individual *> &p);
 
     vector<Individual *> tournamentSelection(vector<Individual *> p);
-
-    static void sortPopulation(vector<Individual *> p);
 
     void generationalReplacement(vector<Individual *> newPop, vector<Individual *> oldPop);
 
