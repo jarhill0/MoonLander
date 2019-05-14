@@ -99,10 +99,11 @@ void GameEngine::applyVelocity() {
 
 void GameEngine::calculateScore() {
     // all component values should be positive
-    double xDiff = shipXPos > 0 ? -shipXPos : -shipXPos;
+    double xDiff = shipXPos;
     xDiff /= 20;
+    xDiff *= xDiff;
     double shipVel = sqrt(shipXVel * shipXVel + shipYVel * shipYVel);
-    shipVel *= 50;
+    shipVel *= 35;
     double upright = shipRotation - M_PI / 2;
     upright = upright > 0 ? upright : -upright;
     upright *= 20;
