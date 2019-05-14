@@ -22,7 +22,8 @@ const int TICKS_PER_FRAME = 1000 / FPS;
 const int NUM_STARS = 420;
 const int FONT_SIZE = 32;
 const int LANDINGPAD_Y_OFFSET = 20;
-const int FLAME_MAX = 6;
+const int FLAME_MAX = 7;
+const int SIDE_FLAME_MAX = 3;
 
 class Sprite {
     public:
@@ -419,7 +420,7 @@ void GameGUI::drawFrame(GameState gs) {
       static int leftStage = 0;
 
       if((bool) keysPressed[SDL_SCANCODE_RIGHT]){
-        if(leftStage < FLAME_MAX - 1)
+        if(leftStage < SIDE_FLAME_MAX - 1)
           leftStage++;
       }
       else{
@@ -437,7 +438,7 @@ void GameGUI::drawFrame(GameState gs) {
       static int rightStage = 0;
 
       if((bool) keysPressed[SDL_SCANCODE_LEFT]){
-        if(rightStage < FLAME_MAX - 1)
+        if(rightStage < SIDE_FLAME_MAX - 1)
           rightStage++;
       }
       else{
