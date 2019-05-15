@@ -21,6 +21,8 @@ const int TICKS_PER_FRAME = 1000 / FPS;
 const int NUM_STARS = 420;
 const int FONT_SIZE = 32;
 const int LANDINGPAD_Y_OFFSET = 20;
+const int FLAME_MAX = 7;
+const int SIDE_FLAME_MAX = 3;
 
 class Sprite {
     public:
@@ -64,7 +66,8 @@ class GameGUI {
         Sprite *moonTile;
         Sprite *landingPadFront;
         Sprite *landingPadBack;
-        Sprite *flame;
+        Sprite *flames[FLAME_MAX];
+        int mainStage, leftStage, rightStage;
         Sprite *textSprite;
         bool gameStarted, gameOver;
         int starsX[NUM_STARS];
@@ -119,7 +122,9 @@ GameGUI::GameGUI(bool bounded) {
     moonTile = new Sprite();
     landingPadFront = new Sprite();
     landingPadBack = new Sprite();
-    flame = new Sprite();
+    for(int i = 0; i < FLAME_MAX; i++){
+      flames[i] = new Sprite();
+      }
     textSprite = new Sprite();
 
     if (!loadMedia()) {
@@ -133,6 +138,8 @@ GameGUI::GameGUI(bool bounded) {
     }
 
     initStars();
+
+    mainStage = leftStage = rightStage = 0;
 }
 
 bool GameGUI::loadMedia() {
@@ -156,9 +163,11 @@ bool GameGUI::loadMedia() {
         return false;
     }
 
-    if (!flame->loadFile("img/flame.png", gameRenderer)) {
-        fprintf(stderr, "Failed to load flame!\n");
-        return false;
+    for(int i = 0; i < FLAME_MAX; i++){
+      if (!flames[i]->loadFile("img/flame" + std::to_string(i) + ".png", gameRenderer)) {
+          fprintf(stderr, "Failed to load flame %d!\n", i);
+          return false;
+      }
     }
 
     if (!textSprite->loadText("Press enter to start.",
@@ -288,12 +297,15 @@ bool GameGUI::handleResize() {
     if (NULL == gameRenderer)
         return false;
 
-    return rocket->switchRenderer(gameRenderer)
+    bool success = rocket->switchRenderer(gameRenderer)
         && moonTile->switchRenderer(gameRenderer)
         && textSprite->switchRenderer(gameRenderer)
         && landingPadBack->switchRenderer(gameRenderer)
-        && landingPadFront->switchRenderer(gameRenderer)
-        && flame->switchRenderer(gameRenderer);
+        && landingPadFront->switchRenderer(gameRenderer);
+    for (int i = 0; i < FLAME_MAX; i++) {
+        success = success && flames[i]->switchRenderer(gameRenderer);
+    }
+    return success;
 }
 
 // Calculate x- and y-offsets for a rectangular sprite based on an elliptical
@@ -382,24 +394,53 @@ void GameGUI::drawFrame(GameState gs, InputState is) {
     int yOffset = cos(gs.shipRotation - M_PI/2) * rocket->getHeight() / 2;
 
     // draw main thruster
-    if (is.mainThruster) {
-        int mainX = shipCenterX - flame->getWidth() / 2 + xOffset;
-        int mainY = shipCenterY - flame->getHeight() / 2 + yOffset;
-        renderSprite(flame, mainX, mainY, shipRot + 180);
-    }
+    if(gameStarted){
+      if(is.mainThruster){
+        if(mainStage < FLAME_MAX - 1)
+          mainStage++;
+      }
+      else{
+        if(mainStage > 0)
+          mainStage--;
+      }
 
-    // draw left thruster
-    if (is.rotRightThruster) {
-        int leftX = shipCenterX - flame->getWidth() / 2 - yOffset;
-        int leftY = shipCenterY - flame->getHeight() / 2 + xOffset;
-        renderSprite(flame, leftX, leftY, shipRot - 90);
-    }
+      if(mainStage > 0){
+        int mainX = shipCenterX - flames[mainStage]->getWidth() / 2 + xOffset;
+        int mainY = shipCenterY - flames[mainStage]->getHeight() / 2 + yOffset;
+        renderSprite(flames[mainStage], mainX, mainY, shipRot + 180);
+      }
 
-    // draw right thruster
-    if (is.rotLeftThruster) {
-        int rightX = shipCenterX - flame->getWidth() / 2 + yOffset;
-        int rightY = shipCenterY - flame->getHeight() / 2 - xOffset;
-        renderSprite(flame, rightX, rightY, shipRot + 90);
+      // draw left thruster
+      if((bool) is.rotRightThruster){
+        if(leftStage < SIDE_FLAME_MAX - 1)
+          leftStage++;
+      }
+      else{
+        if(leftStage > 0)
+          leftStage--;
+      }
+
+      if(leftStage > 0){
+        int leftX = shipCenterX - flames[leftStage]->getWidth() / 2 - yOffset;
+        int leftY = shipCenterY - flames[leftStage]->getHeight() / 2 + xOffset;
+        renderSprite(flames[leftStage], leftX, leftY, shipRot - 90);
+      }
+
+      // draw right thruster
+      if(is.rotLeftThruster){
+        if(rightStage < SIDE_FLAME_MAX - 1)
+          rightStage++;
+      }
+      else{
+        if(rightStage > 0)
+          rightStage--;
+      }
+
+      if(rightStage > 0){
+        int rightX = shipCenterX - flames[rightStage]->getWidth() / 2 + yOffset;
+        int rightY = shipCenterY - flames[rightStage]->getHeight() / 2 - xOffset;
+        renderSprite(flames[rightStage], rightX, rightY, shipRot + 90);
+      }
     }
 
     // draw landing pad front
@@ -482,6 +523,9 @@ GameGUI::~GameGUI() {
     delete landingPadFront;
     delete landingPadBack;
     delete textSprite;
+    for (int i = 0; i < FLAME_MAX; i++) {
+        delete flames[i];
+    }
 
     TTF_CloseFont(textFont);
     textFont = NULL;
