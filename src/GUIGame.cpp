@@ -56,6 +56,7 @@ class GameGUI {
         void renderSprite(Sprite*, int, int, double = 0.0);
         void drawStars();
         void initStars();
+        void initEngine();
         void drawFrame(GameState, InputState);
         bool handleResize();
 
@@ -73,9 +74,10 @@ class GameGUI {
         int starsX[NUM_STARS];
         int starsY[NUM_STARS];
         TTF_Font *textFont;
+        bool bounded;
 };
 
-GameGUI::GameGUI(bool bounded) {
+GameGUI::GameGUI(bool b) {
     gameWindow = NULL;
     gameRenderer = NULL;
 
@@ -132,13 +134,17 @@ GameGUI::GameGUI(bool bounded) {
         exit(1);
     }
 
+    bounded = b;
+    initEngine();
+    initStars();
+}
+
+void GameGUI::initEngine() {
+    engine = GameEngine();
     if (bounded) {
         engine.setBounds(-(SCREEN_WIDTH / 2), SCREEN_WIDTH / 2,
                 SCREEN_HEIGHT - moonTile->getHeight());
     }
-
-    initStars();
-
     mainStage = leftStage = rightStage = 0;
 }
 
@@ -249,19 +255,25 @@ void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
             }
         }
 
+        const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
+
         if (!gameStarted) {
-            const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
             if (keysPressed[SDL_SCANCODE_RETURN]) {
                 gameStarted = true;
             }
             drawFrame(engine.getState(), {false, false, false});
+        } else if (gameStarted && gameOver) {
+            if (keysPressed[SDL_SCANCODE_RETURN]) {
+                gameOver = false;
+                initEngine();
+                drawFrame(engine.getState(), {false, false, false});
+            }
         } else if (!gameOver) {
             InputState inp;
             if (inpFromFile) {
                 inp = {buffer.getBit(), buffer.getBit(), buffer.getBit()};
 
             } else {
-                const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
                 inp = {
                     (bool) keysPressed[SDL_SCANCODE_UP],  // up arrow
                     (bool) keysPressed[SDL_SCANCODE_LEFT],  // left arrow
