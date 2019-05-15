@@ -74,8 +74,7 @@ Individual::~Individual() {
 }
 
 RandGen::RandGen() {
-    seed = 0;
-    // seed = genSeed();
+    seed = genSeed();
     randGen.seed(seed);
 }
 
@@ -246,12 +245,6 @@ void GP::evaluate(Individual *i, bool print) {
 	    if (!output || !buffer) {
 		fprintf(stderr, "Output file undefined or buffer undefined");
 	    } else {
-		if (is.mainThruster == 0x0) cout << "0";
-		else cout << "1";
-		if (is.rotLeftThruster == 0x0) cout << "0";
-		else cout << "1";
-		if (is.rotRightThruster == 0x0) cout << "0";
-		else cout << "1";
 
 		buffer->putBit(is.mainThruster);
 		buffer->putBit(is.rotLeftThruster);
