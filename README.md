@@ -1,8 +1,10 @@
 # MoonLander
 
+![Screenshot](img/screenshot.png?raw=true "The game in action")
+
 ## Requirements
 
-MoonLander requires the following libraries:
+The MoonLander GUI requires the following libraries:
 
 - `SDL2`
 - `SDL2_image`
@@ -23,3 +25,5 @@ Run `make` in the repository root.
 
 Run the GUI game with `bin/GUIGame`, assuming that the working directory is
 the root of this repository.
+
+Run the ML with `bin/GP -o best.txt` to dump the best performace to `best.txt`.
