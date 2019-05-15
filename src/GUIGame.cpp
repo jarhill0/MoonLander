@@ -57,7 +57,7 @@ class GameGUI {
         void renderSprite(Sprite*, int, int, double = 0.0);
         void drawStars();
         void initStars();
-        void drawFrame(GameState);
+        void drawFrame(GameState, InputState);
         bool handleResize();
 
         GameEngine engine;
@@ -241,7 +241,7 @@ void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
                     break;
                 }
                 if (gameOver) {
-                    drawFrame(engine.getState());
+                    drawFrame(engine.getState(), {false, false, false});
                 }
             }
         }
@@ -251,7 +251,7 @@ void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
             if (keysPressed[SDL_SCANCODE_RETURN]) {
                 gameStarted = true;
             }
-            drawFrame(engine.getState());
+            drawFrame(engine.getState(), {false, false, false});
         } else if (!gameOver) {
             InputState inp;
             if (inpFromFile) {
@@ -271,7 +271,7 @@ void GameGUI::gameLoop(FILE *inpDump, bool inpFromFile) {
                 }
             }
 
-            drawFrame(engine.step(inp));
+            drawFrame(engine.step(inp), inp);
         }
 
         int frameTicks = frameStartTime - SDL_GetTicks();
@@ -329,7 +329,7 @@ void ovalOffset(Sprite *sprite, double th, int *x_p, int *y_p) {
     *y_p = -y;
 }
 
-void GameGUI::drawFrame(GameState gs) {
+void GameGUI::drawFrame(GameState gs, InputState is) {
     SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0xff);
     SDL_RenderClear(gameRenderer);
 
@@ -386,12 +386,7 @@ void GameGUI::drawFrame(GameState gs) {
     int shipRot = -((gs.shipRotation * 180 / M_PI) - 90);
     renderSprite(rocket, shipXPos, shipYPos, shipRot);
 
-    // Draw thruster flames
-    // Animates flames turning on and off
-    // Actual thurst is not impacted
-
-    const Uint8 *keysPressed = SDL_GetKeyboardState(NULL);
-
+    // draw thruster flames
     int shipCenterX = shipXPos + rocket->getWidth() / 2;
     int shipCenterY = shipYPos + rocket->getHeight() / 2;
     int xOffset = sin(gs.shipRotation - M_PI/2) * rocket->getWidth() / 2;
@@ -401,7 +396,7 @@ void GameGUI::drawFrame(GameState gs) {
     if(gameStarted){
       static int mainStage = 0;
 
-      if((bool) keysPressed[SDL_SCANCODE_UP]){
+      if(is.mainThruster){
         if(mainStage < FLAME_MAX - 1)
           mainStage++;
       }
@@ -419,7 +414,7 @@ void GameGUI::drawFrame(GameState gs) {
       // draw left thruster
       static int leftStage = 0;
 
-      if((bool) keysPressed[SDL_SCANCODE_RIGHT]){
+      if((bool) is.rotLeftThruster){
         if(leftStage < SIDE_FLAME_MAX - 1)
           leftStage++;
       }
@@ -437,7 +432,7 @@ void GameGUI::drawFrame(GameState gs) {
       // draw right thruster
       static int rightStage = 0;
 
-      if((bool) keysPressed[SDL_SCANCODE_LEFT]){
+      if(is.rotRightThruster){
         if(rightStage < SIDE_FLAME_MAX - 1)
           rightStage++;
       }
