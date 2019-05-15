@@ -29,6 +29,7 @@ using namespace std;
 #define ELITE_SIZE 20
 #define GENERATIONS 100
 #define MUTATION_PROBABILITY 20
+const int NUM_MUTATIONS = 50;
 #define CROSSOVER_PROBABILITY 35
 #define SURVIVE 70
 

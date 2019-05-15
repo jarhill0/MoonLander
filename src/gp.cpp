@@ -194,23 +194,7 @@ void GP::initPop() {
 void GP::mutate(Individual *ind) {
   if (r.randInt(0, 100) >= mutationProbability) return;
 
-  /*
-    tuple<int,int,int,int> indices = r.randIndices(ind);
-
-    int r1 = get<0>(indices);
-    int c1 = get<1>(indices);
-    int r2 = get<2>(indices);
-    int c2 = get<3>(indices);
-
-    for (int i = r1; i < r2; i++) {
-        for (int k = c1; k < c2; k++) {
-            ind->inputs[i][k].mainThruster = r.randBool();
-            ind->inputs[i][k].rotLeftThruster = !r.randBool();
-            ind->inputs[i][k].rotRightThruster = !r.randBool();
-        }
-    }
-  */
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < NUM_MUTATIONS; i++) {
     int row = r.randInt(0, VECT_H - 1);
     int col = r.randInt(0, VECT_W - 1);
     int whichInput = r.randInt(0,2);
