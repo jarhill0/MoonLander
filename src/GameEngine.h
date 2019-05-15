@@ -41,7 +41,6 @@ class GameEngine {
         GameState step(InputState input);
         GameState getState();  // get the state without stepping the engine
         void setBounds(int, int, int);
-        void setDefaultFields(void);
 
     private:
         double fuel;

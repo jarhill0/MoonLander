@@ -24,10 +24,6 @@ void InputState::print() {
 
 // Constructor
 GameEngine::GameEngine() {
-    setDefaultFields();
-}
-
-void GameEngine::setDefaultFields() {
     fuel = START_FUEL;
 
     shipYPos = START_Y_POS;

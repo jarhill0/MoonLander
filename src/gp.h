@@ -22,14 +22,14 @@ using namespace std;
 
 #define MOON_TILE_HEIGHT 64
 
-#define POPULATION_SIZE 5
+#define POPULATION_SIZE 250
 #define UNIT_SIZE 40 // must divide SCREEN_WIDTH and HEIGHT
 #define DEFAULT_FITNESS INT_MIN
-#define TOURNAMENT_SIZE 3
-#define ELITE_SIZE 2
-#define GENERATIONS 5
-#define MUTATION_PROBABILITY 5
-#define CROSSOVER_PROBABILITY 80
+#define TOURNAMENT_SIZE 100
+#define ELITE_SIZE 20
+#define GENERATIONS 100
+#define MUTATION_PROBABILITY 10
+#define CROSSOVER_PROBABILITY 70
 #define SURVIVE 70
 
 const int VECT_W = SCREEN_WIDTH/UNIT_SIZE;
@@ -68,7 +68,7 @@ class RandGen {
 class GP {
     public:
         GP(void);
-	GP(FILE *o);
+	GP(FILE *o, FILE *g);
        ~GP(void);
        
         int popSize;
@@ -80,14 +80,14 @@ class GP {
 	int survive; 
         vector<Individual *> pop;
         RandGen r;
-	FILE *output;
-	BitBuffer *buffer;
+	FILE *output, *grid;
 
 	void defaultInit();
         void initPop(void);
         void mutate(Individual *i);
         tuple<Individual *, Individual *> crossover(Individual *i1, Individual *i2);
 	void evaluate(Individual *i, bool print=false);
+    void dumpGrid(Individual *i);
 	vector<Individual *> tournamentSelection(vector<Individual *> p);
 	static void sortPopulation(vector<Individual *> &p);
 	void generationalReplacement(vector<Individual *> newPop, vector<Individual *> oldPop);

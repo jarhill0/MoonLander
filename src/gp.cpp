@@ -3,16 +3,18 @@
 using namespace std;
 
 FILE *getOutputFile(int argc, char *argv[]);
+FILE *getGridOutputFile(int argc, char *argv[]);
 
 int main (int argc, char *argv[]) {
     assert(SCREEN_WIDTH % UNIT_SIZE == 0);
     assert(SCREEN_HEIGHT % UNIT_SIZE == 0);
 
-    GP *gp = new GP(getOutputFile(argc, argv));
+    GP *gp = new GP(getOutputFile(argc, argv), getGridOutputFile(argc, argv));
     
     Individual *bestEver = gp->searchLoop(gp->pop);
 
     if (gp->output) gp->evaluate(bestEver, true);
+    if (gp->grid) gp->dumpGrid(bestEver);
 
     cout << bestEver -> fitness << endl;
     
@@ -23,10 +25,10 @@ int main (int argc, char *argv[]) {
     gp->pop.clear();
 
     if (gp->output) {
-	gp->buffer->flush();
-	fclose(gp->output);
-	
-	delete gp->buffer;
+	fclose(gp->output);	
+    }
+    if (gp->grid) {
+        fclose(gp->grid);
     }
 
     delete gp;
@@ -37,6 +39,24 @@ int main (int argc, char *argv[]) {
 FILE *getOutputFile(int argc, char *argv[]) {
     for (int i=1; i < argc; i++) {
 	if (!strcmp(argv[i], "-o")) {
+	    FILE *output = fopen(argv[i+1], "w");
+
+	    if (!output) {
+		fprintf(stderr, "Error opening output file.\n");
+
+		exit(EXIT_FAILURE);
+	    }
+
+	    return output;
+	}
+    }
+
+    return nullptr;
+}
+
+FILE *getGridOutputFile(int argc, char *argv[]) {
+    for (int i=1; i < argc; i++) {
+	if (!strcmp(argv[i], "-g")) {
 	    FILE *output = fopen(argv[i+1], "w");
 
 	    if (!output) {
@@ -123,13 +143,13 @@ tuple<int, int, int, int> RandGen::randIndices(Individual *i) {
 
 GP::GP() {
     output = nullptr;
-    buffer = nullptr;
+    grid = nullptr;
     defaultInit();
 }
 
-GP::GP(FILE *o) {
+GP::GP(FILE *o, FILE *g) {
     output = o;
-    buffer = new BitBuffer(output);
+    grid = g;
     defaultInit();
 }
 
@@ -226,10 +246,18 @@ tuple<Individual *, Individual *> GP::crossover(Individual *i1, Individual *i2) 
 void GP::evaluate(Individual *i, bool print) {
     GameEngine g;
 
-    g.setDefaultFields();
     g.setBounds(-(HALF_W), HALF_W, SCREEN_HEIGHT - MOON_TILE_HEIGHT);
     
     GameState gs = g.getState();
+
+    BitBuffer *buffer = nullptr;
+    if (print) {
+        if (!output) {
+            fprintf(stderr, "Output file undefined\n");
+        } else {
+            buffer = new BitBuffer(output);
+        }
+    }
     
     while (!gs.gameOver) {
 	
@@ -241,21 +269,40 @@ void GP::evaluate(Individual *i, bool print) {
 
 	InputState is = i->inputs[x][y];
 	
-	if (print) {
-	    if (!output || !buffer) {
-		fprintf(stderr, "Output file undefined or buffer undefined");
-	    } else {
-
+	if (buffer) {
 		buffer->putBit(is.mainThruster);
 		buffer->putBit(is.rotLeftThruster);
 		buffer->putBit(is.rotRightThruster);
 	    }
-	}
 	
 	gs = g.step(is);
     }
     
     i->fitness = gs.score;   
+
+    if (buffer) {
+        buffer->flush();
+        delete buffer;
+    }
+}
+
+void GP::dumpGrid(Individual *i) {
+    if (!grid) {
+        fprintf(stderr, "Output file undefined\n");
+        return;
+    }
+    
+    BitBuffer buffer(grid);
+    
+    for (vector<InputState> v : i->inputs) {
+        for (InputState is : v) {
+            buffer.putBit(is.mainThruster);
+            buffer.putBit(is.rotLeftThruster);
+            buffer.putBit(is.rotRightThruster);
+        }
+    }
+
+    buffer.flush();
 }
 
 bool compareIndividualPointers(Individual *i1, Individual *i2) {
