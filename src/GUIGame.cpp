@@ -68,6 +68,7 @@ class GameGUI {
         Sprite *landingPadFront;
         Sprite *landingPadBack;
         Sprite *flames[FLAME_MAX];
+        int mainStage, leftStage, rightStage;
         Sprite *textSprite;
         bool gameStarted, gameOver;
         int starsX[NUM_STARS];
@@ -138,6 +139,8 @@ GameGUI::GameGUI(bool bounded) {
     }
 
     initStars();
+
+    mainStage = leftStage = rightStage = 0;
 }
 
 bool GameGUI::loadMedia() {
@@ -293,18 +296,15 @@ bool GameGUI::handleResize() {
     if (NULL == gameRenderer)
         return false;
 
-    return rocket->switchRenderer(gameRenderer)
+    bool success = rocket->switchRenderer(gameRenderer)
         && moonTile->switchRenderer(gameRenderer)
         && textSprite->switchRenderer(gameRenderer)
         && landingPadBack->switchRenderer(gameRenderer)
-        && landingPadFront->switchRenderer(gameRenderer)
-        && flames[0]->switchRenderer(gameRenderer)
-        && flames[1]->switchRenderer(gameRenderer)
-        && flames[2]->switchRenderer(gameRenderer)
-        && flames[3]->switchRenderer(gameRenderer)
-        && flames[4]->switchRenderer(gameRenderer)
-        && flames[5]->switchRenderer(gameRenderer);
-        //TODO: Make this work for any number of flame grpahics
+        && landingPadFront->switchRenderer(gameRenderer);
+    for (int i = 0; i < FLAME_MAX; i++) {
+        success = success && flames[i]->switchRenderer(gameRenderer);
+    }
+    return success;
 }
 
 // Calculate x- and y-offsets for a rectangular sprite based on an elliptical
@@ -394,8 +394,6 @@ void GameGUI::drawFrame(GameState gs, InputState is) {
 
     // draw main thruster
     if(gameStarted){
-      static int mainStage = 0;
-
       if(is.mainThruster){
         if(mainStage < FLAME_MAX - 1)
           mainStage++;
@@ -412,8 +410,6 @@ void GameGUI::drawFrame(GameState gs, InputState is) {
       }
 
       // draw left thruster
-      static int leftStage = 0;
-
       if((bool) is.rotRightThruster){
         if(leftStage < SIDE_FLAME_MAX - 1)
           leftStage++;
@@ -430,8 +426,6 @@ void GameGUI::drawFrame(GameState gs, InputState is) {
       }
 
       // draw right thruster
-      static int rightStage = 0;
-
       if(is.rotLeftThruster){
         if(rightStage < SIDE_FLAME_MAX - 1)
           rightStage++;
@@ -528,6 +522,9 @@ GameGUI::~GameGUI() {
     delete landingPadFront;
     delete landingPadBack;
     delete textSprite;
+    for (int i = 0; i < FLAME_MAX; i++) {
+        delete flames[i];
+    }
 
     TTF_CloseFont(textFont);
     textFont = NULL;
