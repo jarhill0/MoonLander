@@ -3,17 +3,18 @@
 using namespace std;
 
 FILE *getOutputFile(int argc, char *argv[]);
-bool compareIndividuals(Individual *i1, Individual *i2);
+FILE *getGridOutputFile(int argc, char *argv[]);
 
 int main (int argc, char *argv[]) {
     assert(SCREEN_WIDTH % UNIT_SIZE == 0);
     assert(SCREEN_HEIGHT % UNIT_SIZE == 0);
 
-    GP *gp = new GP(getOutputFile(argc, argv));
+    GP *gp = new GP(getOutputFile(argc, argv), getGridOutputFile(argc, argv));
     
     Individual *bestEver = gp->searchLoop(gp->pop);
 
     if (gp->output) gp->evaluate(bestEver, true);
+    if (gp->grid) gp->dumpGrid(bestEver);
 
     cout << bestEver -> fitness << endl;
     
@@ -24,10 +25,10 @@ int main (int argc, char *argv[]) {
     gp->pop.clear();
 
     if (gp->output) {
-	gp->buffer->flush();
-	fclose(gp->output);
-	
-	delete gp->buffer;
+	fclose(gp->output);	
+    }
+    if (gp->grid) {
+        fclose(gp->grid);
     }
 
     delete gp;
@@ -53,70 +54,34 @@ FILE *getOutputFile(int argc, char *argv[]) {
     return nullptr;
 }
 
-Individual::Individual(vector<vector<InputState *>> inps, double fit) {
+FILE *getGridOutputFile(int argc, char *argv[]) {
+    for (int i=1; i < argc; i++) {
+	if (!strcmp(argv[i], "-g")) {
+	    FILE *output = fopen(argv[i+1], "w");
+
+	    if (!output) {
+		fprintf(stderr, "Error opening output file.\n");
+
+		exit(EXIT_FAILURE);
+	    }
+
+	    return output;
+	}
+    }
+
+    return nullptr;
+}
+
+Individual::Individual(vector<vector<InputState>> inps, double fit) {
     inputs = inps;
     fitness = fit;
 }
 
-Individual::Individual(const Individual &i) {
-   vector<vector<InputState *>> new_vec(i.inputs.size());
-    
-    for (vector<InputState *> j: i.inputs) {
-	vector<InputState *> n(j.size());
-	
-	for (InputState *k : j) {
-	    InputState *new_inp = new InputState
-		{k->mainThruster, k->rotLeftThruster, k->rotRightThruster};
-	    n.push_back(new_inp);
-	}
-
-	new_vec.push_back(n);
-    }
-
-    inputs = new_vec;
-    fitness = i.fitness;
-}
-
-Individual& Individual::operator=(Individual i) {
-    swap(fitness, i.fitness);
-
-    vector<vector<InputState *>> larger = (inputs.size() > i.inputs.size() ? inputs : i.inputs);
-    vector<vector<InputState *>> smaller = (larger == inputs ? i.inputs : inputs);
-
-    vector<vector<InputState *>> tmp(smaller.size());
-    
-    for (int k = 0; k < (int)smaller.size(); k++) {
-	tmp[k] = smaller[k];
-    }
-
-    smaller.resize(larger.size());
-
-    for (int k = 0; k < (int)larger.size(); k++) {
-	swap(smaller[k], larger[k]);
-    }
-
-    larger.resize(tmp.size());
-
-    for (int k = 0; k < (int)tmp.size(); k++) {
-	swap(tmp[k], larger[k]);
-    }
-
-    return *this;
-}
-
-bool Individual::operator<(const Individual &i) {
-    return compare(*this, i);
-}
-
-bool Individual::compare(const Individual& i1, const Individual& i2) {
-    return i1.fitness < i2.fitness;
-}
-
 void Individual::print() {
     cout << "Fitness: " << fitness << endl;
-    for (vector<InputState *> j : inputs) {
-	for (InputState *k : j) {
-	    k->print();
+    for (vector<InputState> j : inputs) {
+	for (InputState k : j) {
+	    k.print();
 	    cout << " ";
 	}
 	
@@ -125,18 +90,11 @@ void Individual::print() {
 }
 
 Individual::~Individual() {
-    for (vector<InputState *> j : inputs) {
-    	for (InputState *k : j) {
-    	    delete k;
-    	}
-    }
-    
     inputs.clear();
 }
 
 RandGen::RandGen() {
-    seed = 0;
-    // seed = genSeed();
+    seed = genSeed();
     randGen.seed(seed);
 }
 
@@ -145,8 +103,8 @@ RandGen::RandGen(unsigned s) {
     randGen.seed(seed);
 }
 
-InputState *RandGen::randState() {
-    return new InputState {randBool(), randBool(), randBool()};
+InputState RandGen::randState() {
+    return {randBool(), randBool(), randBool()};
 }
 
 int RandGen::randInt(int min, int max) {
@@ -185,13 +143,13 @@ tuple<int, int, int, int> RandGen::randIndices(Individual *i) {
 
 GP::GP() {
     output = nullptr;
-    buffer = nullptr;
+    grid = nullptr;
     defaultInit();
 }
 
-GP::GP(FILE *o) {
+GP::GP(FILE *o, FILE *g) {
     output = o;
-    buffer = new BitBuffer(output);
+    grid = g;
     defaultInit();
 }
 
@@ -219,10 +177,10 @@ GP::~GP() {
 
 void GP::initPop() {
     for (int i = 0; i < popSize; i++) {
-	vector<vector<InputState *>> inps(VECT_W);
+	vector<vector<InputState>> inps(VECT_W);
 
 	for (int k = 0; k < VECT_W; k++) {
-	    inps[k] = vector<InputState *>(VECT_H);
+	    inps[k] = vector<InputState>(VECT_H);
 
 	    for (int c = 0; c < VECT_H; c++) {
 		inps[k][c] = r.randState();
@@ -245,9 +203,9 @@ void GP::mutate(Individual *ind) {
     
     for (int i = r1; i < r2; i++) {
 	for (int k = c1; k < c2; k++) {
-	    ind->inputs[i][k]->mainThruster = r.randBool();
-	    ind->inputs[i][k]->rotLeftThruster = !r.randBool();
-	    ind->inputs[i][k]->rotRightThruster = !r.randBool();
+	    ind->inputs[i][k].mainThruster = r.randBool();
+	    ind->inputs[i][k].rotLeftThruster = !r.randBool();
+	    ind->inputs[i][k].rotRightThruster = !r.randBool();
 	}
     }
 }
@@ -272,10 +230,10 @@ tuple<Individual *, Individual *> GP::crossover(Individual *i1, Individual *i2) 
 	for (int i = r1; i < r2; i++) {
 	    for (int k = c1; k < c2; k++) {
 		
-		InputState tmp = *(new_i1->inputs[i][k]);
+		InputState tmp = new_i1->inputs[i][k];
 		
-		*(new_i1->inputs[i][k]) = *(new_i2->inputs[i][k]);
-		*(new_i2->inputs[i][k]) = tmp;
+		new_i1->inputs[i][k] = new_i2->inputs[i][k];
+		new_i2->inputs[i][k] = tmp;
 	    }
 	}
     }
@@ -288,10 +246,18 @@ tuple<Individual *, Individual *> GP::crossover(Individual *i1, Individual *i2) 
 void GP::evaluate(Individual *i, bool print) {
     GameEngine g;
 
-    g.setDefaultFields();
     g.setBounds(-(HALF_W), HALF_W, SCREEN_HEIGHT - MOON_TILE_HEIGHT);
     
     GameState gs = g.getState();
+
+    BitBuffer *buffer = nullptr;
+    if (print) {
+        if (!output) {
+            fprintf(stderr, "Output file undefined\n");
+        } else {
+            buffer = new BitBuffer(output);
+        }
+    }
     
     while (!gs.gameOver) {
 	
@@ -301,38 +267,50 @@ void GP::evaluate(Individual *i, bool print) {
 	x = floor(x / UNIT_SIZE);
 	y = floor(y / UNIT_SIZE);
 
-	InputState *is = i->inputs[x][y];
+	InputState is = i->inputs[x][y];
 	
-	if (print) {
-	    if (!output || !buffer) {
-		fprintf(stderr, "Output file undefined or buffer undefined");
-	    } else {
-		if (is->mainThruster == 0x0) cout << "0";
-		else cout << "1";
-		if (is->rotLeftThruster == 0x0) cout << "0";
-		else cout << "1";
-		if (is->rotRightThruster == 0x0) cout << "0";
-		else cout << "1";
-
-		buffer->putBit(is->mainThruster);
-		buffer->putBit(is->rotLeftThruster);
-		buffer->putBit(is->rotRightThruster);
+	if (buffer) {
+		buffer->putBit(is.mainThruster);
+		buffer->putBit(is.rotLeftThruster);
+		buffer->putBit(is.rotRightThruster);
 	    }
-	}
 	
-	gs = g.step(*is);
+	gs = g.step(is);
     }
     
-    i -> fitness = gs.score;   
+    i->fitness = gs.score;   
+
+    if (buffer) {
+        buffer->flush();
+        delete buffer;
+    }
 }
 
-bool compareIndividuals(Individual *i1, Individual *i2) {
-    cout << "foo";
-    return (*i1) < *(i2);
+void GP::dumpGrid(Individual *i) {
+    if (!grid) {
+        fprintf(stderr, "Output file undefined\n");
+        return;
+    }
+    
+    BitBuffer buffer(grid);
+    
+    for (vector<InputState> v : i->inputs) {
+        for (InputState is : v) {
+            buffer.putBit(is.mainThruster);
+            buffer.putBit(is.rotLeftThruster);
+            buffer.putBit(is.rotRightThruster);
+        }
+    }
+
+    buffer.flush();
 }
 
-void GP::sortPopulation(vector<Individual *> p) {
-    sort(p.begin(), p.end());
+bool compareIndividualPointers(Individual *i1, Individual *i2) {
+    return i1->fitness > i2->fitness;
+}
+
+void GP::sortPopulation(vector<Individual *> &p) {
+    sort(p.begin(), p.end(), compareIndividualPointers);
 }
 
 vector<Individual *> GP::tournamentSelection(vector<Individual *> p) {

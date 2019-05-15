@@ -1,3 +1,8 @@
+# CLion stuff
+.idea/
+CMakeLists.txt
+cmake-build-debug/
+
 # Binaries directory
 bin/
 
