@@ -72,6 +72,10 @@ FILE *getGridOutputFile(int argc, char *argv[]) {
     return nullptr;
 }
 
+Individual *sillyCopy(Individual *i) {
+    return new Individual(i->inputs, i->fitness);
+}
+
 Individual::Individual(vector<vector<InputState>> inps, double fit) {
     inputs = inps;
     fitness = fit;
@@ -195,8 +199,8 @@ void GP::mutate(Individual *ind) {
   if (r.randInt(0, 100) >= mutationProbability) return;
 
   for (int i = 0; i < NUM_MUTATIONS; i++) {
-    int row = r.randInt(0, VECT_H - 1);
-    int col = r.randInt(0, VECT_W - 1);
+    int row = r.randInt(0, VECT_W - 1);
+    int col = r.randInt(0, VECT_H - 1);
     int whichInput = r.randInt(0,2);
     if (whichInput == 0) {
       ind->inputs[row][col].mainThruster = r.randBool();
@@ -214,8 +218,8 @@ tuple<Individual *, Individual *> GP::crossover(Individual *i1, Individual *i2) 
 
     tuple<Individual *, Individual *> results;
     
-    Individual *new_i1 = i1;
-    Individual *new_i2 = i2;
+    Individual *new_i1 = sillyCopy(i1);
+    Individual *new_i2 = sillyCopy(i2);
 
     if (r.randInt(0, 100) < crossoverProbability) {
 	tuple<int,int,int,int> indices = r.randIndices(i1);
@@ -311,6 +315,8 @@ void GP::sortPopulation(vector<Individual *> &p) {
     sort(p.begin(), p.end(), compareIndividualPointers);
 }
 
+
+
 vector<Individual *> GP::tournamentSelection(vector<Individual *> p) {
     vector<Individual *> winners(popSize);
 
@@ -329,7 +335,7 @@ vector<Individual *> GP::tournamentSelection(vector<Individual *> p) {
 	}
 
 	sortPopulation(competitors);
-	winners[win_i++] = competitors[0];
+	winners[win_i++] = sillyCopy(competitors[0]);
     }
 
     return winners;
@@ -351,7 +357,7 @@ Individual *GP::searchLoop(vector<Individual *> p) {
 
     sortPopulation(p);
 
-    Individual *bestEver = p[0];
+    Individual *bestEver = sillyCopy(p[0]);
     int gen = 1;
 
     while (gen < generations) {
@@ -359,6 +365,10 @@ Individual *GP::searchLoop(vector<Individual *> p) {
 	vector<Individual *> newPop(popSize);
 
 	int newPopIndex = 0;
+
+    for (; newPopIndex < eliteSize; newPopIndex++) {
+        newPop[newPopIndex] = sillyCopy(p[newPopIndex]);
+    }
 
 	parents = tournamentSelection(p);
 
@@ -388,18 +398,33 @@ Individual *GP::searchLoop(vector<Individual *> p) {
 
 	evaluatePopulation(newPop);
 
-	sortPopulation(p);
 	sortPopulation(newPop);
-	
-	generationalReplacement(p, newPop);
-	
-	// p = newPop;
-	// p.swap(newPop);
 
-	sortPopulation(p);
+    /*
+    for (Individual *i : p) {
+	    cout << i -> fitness << endl;
+	}
+
+	cout << "---------------------------" << endl;
+	
+	for (Individual *i : newPop) {
+	    cout << i -> fitness << endl;
+	}
+
+    cout << "##########################" << endl;
+    */
+
+    for (Individual *i : p) {
+        delete i;
+    }
+
+    p = newPop;
+
+    cout << p[0]->fitness << endl;
 
     if (p[0]->fitness > bestEver->fitness) {
-	    bestEver = p[0];
+        delete bestEver;
+	    bestEver = sillyCopy(p[0]);
     }
 
 	// cout << bestEver -> fitness << endl;
