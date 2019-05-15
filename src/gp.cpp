@@ -18,10 +18,6 @@ int main (int argc, char *argv[]) {
 
     cout << bestEver -> fitness << endl;
 
-    for (Individual *i : gp->pop) {
-        delete i;
-    }
-
     gp->pop.clear();
 
     if (gp->output) {
@@ -419,8 +415,6 @@ Individual *GP::searchLoop(vector<Individual *> p) {
         }
 
         p = newPop;
-
-        cout << p[0]->fitness << endl;
 
         if (p[0]->fitness > bestEver->fitness) {
             delete bestEver;
