@@ -5,7 +5,14 @@ using namespace std;
 FILE *getOutputFile(int argc, char *argv[]);
 FILE *getGridOutputFile(int argc, char *argv[]);
 
+bool verbose = false;
+
 int main (int argc, char *argv[]) {
+    for (int i = 0; i < argc; i++) {
+        if (!strcmp(argv[i], "-v")) {
+            verbose = true;
+        }
+    }
     assert(SCREEN_WIDTH % UNIT_SIZE == 0);
     assert(SCREEN_HEIGHT % UNIT_SIZE == 0);
 
@@ -396,7 +403,7 @@ Individual *GP::searchLoop(vector<Individual *> p) {
 
         sortPopulation(newPop);
 
-        /*
+        if (verbose) {
            for (Individual *i : p) {
            cout << i -> fitness << endl;
            }
@@ -408,7 +415,8 @@ Individual *GP::searchLoop(vector<Individual *> p) {
            }
 
            cout << "##########################" << endl;
-           */
+        }
+           
 
         for (Individual *i : p) {
             delete i;
