@@ -414,7 +414,7 @@ void GameGUI::drawFrame(GameState gs, InputState is) {
       // draw left thruster
       static int leftStage = 0;
 
-      if((bool) is.rotLeftThruster){
+      if((bool) is.rotRightThruster){
         if(leftStage < SIDE_FLAME_MAX - 1)
           leftStage++;
       }
@@ -432,7 +432,7 @@ void GameGUI::drawFrame(GameState gs, InputState is) {
       // draw right thruster
       static int rightStage = 0;
 
-      if(is.rotRightThruster){
+      if(is.rotLeftThruster){
         if(rightStage < SIDE_FLAME_MAX - 1)
           rightStage++;
       }
