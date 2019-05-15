@@ -10,22 +10,22 @@ int main (int argc, char *argv[]) {
     assert(SCREEN_HEIGHT % UNIT_SIZE == 0);
 
     GP *gp = new GP(getOutputFile(argc, argv), getGridOutputFile(argc, argv));
-    
+
     Individual *bestEver = gp->searchLoop(gp->pop);
 
     if (gp->output) gp->evaluate(bestEver, true);
     if (gp->grid) gp->dumpGrid(bestEver);
 
     cout << bestEver -> fitness << endl;
-    
+
     for (Individual *i : gp->pop) {
- 	delete i;
+        delete i;
     }
 
     gp->pop.clear();
 
     if (gp->output) {
-	fclose(gp->output);	
+        fclose(gp->output);	
     }
     if (gp->grid) {
         fclose(gp->grid);
@@ -38,17 +38,17 @@ int main (int argc, char *argv[]) {
 
 FILE *getOutputFile(int argc, char *argv[]) {
     for (int i=1; i < argc; i++) {
-	if (!strcmp(argv[i], "-o")) {
-	    FILE *output = fopen(argv[i+1], "w");
+        if (!strcmp(argv[i], "-o")) {
+            FILE *output = fopen(argv[i+1], "w");
 
-	    if (!output) {
-		fprintf(stderr, "Error opening output file.\n");
+            if (!output) {
+                fprintf(stderr, "Error opening output file.\n");
 
-		exit(EXIT_FAILURE);
-	    }
+                exit(EXIT_FAILURE);
+            }
 
-	    return output;
-	}
+            return output;
+        }
     }
 
     return nullptr;
@@ -56,17 +56,17 @@ FILE *getOutputFile(int argc, char *argv[]) {
 
 FILE *getGridOutputFile(int argc, char *argv[]) {
     for (int i=1; i < argc; i++) {
-	if (!strcmp(argv[i], "-g")) {
-	    FILE *output = fopen(argv[i+1], "w");
+        if (!strcmp(argv[i], "-g")) {
+            FILE *output = fopen(argv[i+1], "w");
 
-	    if (!output) {
-		fprintf(stderr, "Error opening output file.\n");
+            if (!output) {
+                fprintf(stderr, "Error opening output file.\n");
 
-		exit(EXIT_FAILURE);
-	    }
+                exit(EXIT_FAILURE);
+            }
 
-	    return output;
-	}
+            return output;
+        }
     }
 
     return nullptr;
@@ -84,12 +84,12 @@ Individual::Individual(vector<vector<InputState>> inps, double fit) {
 void Individual::print() {
     cout << "Fitness: " << fitness << endl;
     for (vector<InputState> j : inputs) {
-	for (InputState k : j) {
-	    k.print();
-	    cout << " ";
-	}
-	
-	cout << endl;
+        for (InputState k : j) {
+            k.print();
+            cout << " ";
+        }
+
+        cout << endl;
     }
 }
 
@@ -131,14 +131,14 @@ unsigned RandGen::genSeed() {
 tuple<int, int, int, int> RandGen::randIndices(Individual *i) {
     int max_r = i->inputs.size();
     int max_c = i->inputs[0].size();
-    
+
     int r1 = randInt(0, max_r-1);
     int c1 = randInt(0, max_c-1);
     int r2, c2;
-    
+
     if (r1 == max_r) r2 = max_r+1;
     else r2 = randInt(r1+1, max_r);
-    
+
     if (c1 == max_c) c2 = max_c+1;
     else c2 = randInt(c1+1, max_c);
 
@@ -165,7 +165,7 @@ void GP::defaultInit() {
     mutationProbability = MUTATION_PROBABILITY;
     crossoverProbability = CROSSOVER_PROBABILITY;
     survive = SURVIVE;
-    
+
     pop.reserve(popSize);
     initPop();
 
@@ -173,7 +173,7 @@ void GP::defaultInit() {
 
 GP::~GP() {
     for (Individual *i : pop) {
- 	delete i;
+        delete i;
     }
 
     pop.clear();
@@ -181,35 +181,35 @@ GP::~GP() {
 
 void GP::initPop() {
     for (int i = 0; i < popSize; i++) {
-	vector<vector<InputState>> inps(VECT_W);
+        vector<vector<InputState>> inps(VECT_W);
 
-	for (int k = 0; k < VECT_W; k++) {
-	    inps[k] = vector<InputState>(VECT_H);
+        for (int k = 0; k < VECT_W; k++) {
+            inps[k] = vector<InputState>(VECT_H);
 
-	    for (int c = 0; c < VECT_H; c++) {
-		inps[k][c] = r.randState();
-	    }
-	}
-	
-	pop.push_back(new Individual(inps, DEFAULT_FITNESS));
+            for (int c = 0; c < VECT_H; c++) {
+                inps[k][c] = r.randState();
+            }
+        }
+
+        pop.push_back(new Individual(inps, DEFAULT_FITNESS));
     }
 }
 
 void GP::mutate(Individual *ind) {
-  if (r.randInt(0, 100) >= mutationProbability) return;
+    if (r.randInt(0, 100) >= mutationProbability) return;
 
-  for (int i = 0; i < NUM_MUTATIONS; i++) {
-    int row = r.randInt(0, VECT_W - 1);
-    int col = r.randInt(0, VECT_H - 1);
-    int whichInput = r.randInt(0,2);
-    if (whichInput == 0) {
-      ind->inputs[row][col].mainThruster = r.randBool();
-    } else if (whichInput == 1) {
-      ind->inputs[row][col].rotLeftThruster = r.randBool();
-    } else {
-      ind->inputs[row][col].rotRightThruster = r.randBool();
+    for (int i = 0; i < NUM_MUTATIONS; i++) {
+        int row = r.randInt(0, VECT_W - 1);
+        int col = r.randInt(0, VECT_H - 1);
+        int whichInput = r.randInt(0,2);
+        if (whichInput == 0) {
+            ind->inputs[row][col].mainThruster = r.randBool();
+        } else if (whichInput == 1) {
+            ind->inputs[row][col].rotLeftThruster = r.randBool();
+        } else {
+            ind->inputs[row][col].rotRightThruster = r.randBool();
+        }
     }
-  }
 }
 
 tuple<Individual *, Individual *> GP::crossover(Individual *i1, Individual *i2) {
@@ -217,31 +217,31 @@ tuple<Individual *, Individual *> GP::crossover(Individual *i1, Individual *i2) 
     assert(i2->inputs[0].size() == i2->inputs[0].size());
 
     tuple<Individual *, Individual *> results;
-    
+
     Individual *new_i1 = sillyCopy(i1);
     Individual *new_i2 = sillyCopy(i2);
 
     if (r.randInt(0, 100) < crossoverProbability) {
-	tuple<int,int,int,int> indices = r.randIndices(i1);
-	
-	int r1 = get<0>(indices);
-	int c1 = get<1>(indices);
-	int r2 = get<2>(indices);
-	int c2 = get<3>(indices);
-	
-	for (int i = r1; i < r2; i++) {
-	    for (int k = c1; k < c2; k++) {
-		
-		InputState tmp = new_i1->inputs[i][k];
-		
-		new_i1->inputs[i][k] = new_i2->inputs[i][k];
-		new_i2->inputs[i][k] = tmp;
-	    }
-	}
+        tuple<int,int,int,int> indices = r.randIndices(i1);
+
+        int r1 = get<0>(indices);
+        int c1 = get<1>(indices);
+        int r2 = get<2>(indices);
+        int c2 = get<3>(indices);
+
+        for (int i = r1; i < r2; i++) {
+            for (int k = c1; k < c2; k++) {
+
+                InputState tmp = new_i1->inputs[i][k];
+
+                new_i1->inputs[i][k] = new_i2->inputs[i][k];
+                new_i2->inputs[i][k] = tmp;
+            }
+        }
     }
-	
+
     results = make_tuple(new_i1, new_i2);
-    
+
     return results;
 }
 
@@ -249,7 +249,7 @@ void GP::evaluate(Individual *i, bool print) {
     GameEngine g;
 
     g.setBounds(-(HALF_W), HALF_W, SCREEN_HEIGHT - MOON_TILE_HEIGHT);
-    
+
     GameState gs = g.getState();
 
     BitBuffer *buffer = nullptr;
@@ -260,26 +260,26 @@ void GP::evaluate(Individual *i, bool print) {
             buffer = new BitBuffer(output);
         }
     }
-    
-    while (!gs.gameOver) {
-	
-	int x = gs.shipXPos + HALF_W;
-	int y = gs.shipYPos;
-	
-	x = floor(x / UNIT_SIZE);
-	y = floor(y / UNIT_SIZE);
 
-	InputState is = i->inputs[x][y];
-	
-	if (buffer) {
-		buffer->putBit(is.mainThruster);
-		buffer->putBit(is.rotLeftThruster);
-		buffer->putBit(is.rotRightThruster);
-	    }
-	
-	gs = g.step(is);
+    while (!gs.gameOver) {
+
+        int x = gs.shipXPos + HALF_W;
+        int y = gs.shipYPos;
+
+        x = floor(x / UNIT_SIZE);
+        y = floor(y / UNIT_SIZE);
+
+        InputState is = i->inputs[x][y];
+
+        if (buffer) {
+            buffer->putBit(is.mainThruster);
+            buffer->putBit(is.rotLeftThruster);
+            buffer->putBit(is.rotRightThruster);
+        }
+
+        gs = g.step(is);
     }
-    
+
     i->fitness = gs.score;   
 
     if (buffer) {
@@ -293,9 +293,9 @@ void GP::dumpGrid(Individual *i) {
         fprintf(stderr, "Output file undefined\n");
         return;
     }
-    
+
     BitBuffer buffer(grid);
-    
+
     for (vector<InputState> v : i->inputs) {
         for (InputState is : v) {
             buffer.putBit(is.mainThruster);
@@ -325,17 +325,17 @@ vector<Individual *> GP::tournamentSelection(vector<Individual *> p) {
     int win_i = 0;
 
     while (win_i < popSize) {
-	for (int i = 0; i < tournamentSize; i++) {
-	    int idx = r.randInt(0, popSize - i - 1);
-	    competitors[i] = p[idx]; 
-	    
-	    Individual *tmp = p[popSize - i - 1];
-	    p[popSize - i - 1] = p[idx];
-	    p[idx] = tmp;
-	}
+        for (int i = 0; i < tournamentSize; i++) {
+            int idx = r.randInt(0, popSize - i - 1);
+            competitors[i] = p[idx]; 
 
-	sortPopulation(competitors);
-	winners[win_i++] = sillyCopy(competitors[0]);
+            Individual *tmp = p[popSize - i - 1];
+            p[popSize - i - 1] = p[idx];
+            p[idx] = tmp;
+        }
+
+        sortPopulation(competitors);
+        winners[win_i++] = sillyCopy(competitors[0]);
     }
 
     return winners;
@@ -346,9 +346,9 @@ void GP::generationalReplacement(vector<Individual *> newPop, vector<Individual 
     sortPopulation(newPop);
 
     for (int i = 0; i < eliteSize; i++) {
-	// Elite individuals are always propogated
-	*(newPop[popSize - i - 1]) = *(oldPop[i]);
-	oldPop[i] = nullptr;
+        // Elite individuals are always propogated
+        *(newPop[popSize - i - 1]) = *(oldPop[i]);
+        oldPop[i] = nullptr;
     }
 }
 
@@ -361,75 +361,75 @@ Individual *GP::searchLoop(vector<Individual *> p) {
     int gen = 1;
 
     while (gen < generations) {
-	vector<Individual *> parents;
-	vector<Individual *> newPop(popSize);
+        vector<Individual *> parents;
+        vector<Individual *> newPop(popSize);
 
-	int newPopIndex = 0;
+        int newPopIndex = 0;
 
-    for (; newPopIndex < eliteSize; newPopIndex++) {
-        newPop[newPopIndex] = sillyCopy(p[newPopIndex]);
-    }
+        for (; newPopIndex < eliteSize; newPopIndex++) {
+            newPop[newPopIndex] = sillyCopy(p[newPopIndex]);
+        }
 
-	parents = tournamentSelection(p);
+        parents = tournamentSelection(p);
 
-	// Crossover
-	while (newPopIndex < popSize) {
-	    Individual *p1 = parents[r.randInt(0, popSize - 1)];
-	    Individual *p2 = parents[r.randInt(0, popSize - 2)];
+        // Crossover
+        while (newPopIndex < popSize) {
+            Individual *p1 = parents[r.randInt(0, popSize - 1)];
+            Individual *p2 = parents[r.randInt(0, popSize - 2)];
 
-	    assert(p1 != nullptr && p2 != nullptr);
-	    
-	    tuple<Individual *,  Individual *> children = crossover(p1, p2);
+            assert(p1 != nullptr && p2 != nullptr);
 
-	    // Append first child to population.
-	    newPop[newPopIndex++] = get<0>(children);
+            tuple<Individual *,  Individual *> children = crossover(p1, p2);
 
-	    // Wait to add the second child to ensure that you are not adding one too many.
-	    // This is specifically for odd number population sizes.
-	    if (newPopIndex < popSize) {
-		evaluate(get<1>(children));
-		newPop[newPopIndex++] = get<1>(children);
-	    }
-	}
+            // Append first child to population.
+            newPop[newPopIndex++] = get<0>(children);
 
-	for (Individual *i : newPop) {
-	    mutate(i);
-	}
+            // Wait to add the second child to ensure that you are not adding one too many.
+            // This is specifically for odd number population sizes.
+            if (newPopIndex < popSize) {
+                evaluate(get<1>(children));
+                newPop[newPopIndex++] = get<1>(children);
+            }
+        }
 
-	evaluatePopulation(newPop);
+        for (Individual *i : newPop) {
+            mutate(i);
+        }
 
-	sortPopulation(newPop);
+        evaluatePopulation(newPop);
 
-    /*
-    for (Individual *i : p) {
-	    cout << i -> fitness << endl;
-	}
+        sortPopulation(newPop);
 
-	cout << "---------------------------" << endl;
-	
-	for (Individual *i : newPop) {
-	    cout << i -> fitness << endl;
-	}
+        /*
+           for (Individual *i : p) {
+           cout << i -> fitness << endl;
+           }
 
-    cout << "##########################" << endl;
-    */
+           cout << "---------------------------" << endl;
 
-    for (Individual *i : p) {
-        delete i;
-    }
+           for (Individual *i : newPop) {
+           cout << i -> fitness << endl;
+           }
 
-    p = newPop;
+           cout << "##########################" << endl;
+           */
 
-    cout << p[0]->fitness << endl;
+        for (Individual *i : p) {
+            delete i;
+        }
 
-    if (p[0]->fitness > bestEver->fitness) {
-        delete bestEver;
-	    bestEver = sillyCopy(p[0]);
-    }
+        p = newPop;
 
-	// cout << bestEver -> fitness << endl;
+        cout << p[0]->fitness << endl;
 
-	gen++;
+        if (p[0]->fitness > bestEver->fitness) {
+            delete bestEver;
+            bestEver = sillyCopy(p[0]);
+        }
+
+        // cout << bestEver -> fitness << endl;
+
+        gen++;
     }
 
     return bestEver;
@@ -437,7 +437,7 @@ Individual *GP::searchLoop(vector<Individual *> p) {
 
 void GP::evaluatePopulation(vector<Individual *> &p) {
     for (Individual *ind : p) {
-	evaluate(ind);
+        evaluate(ind);
     }
 }
 
