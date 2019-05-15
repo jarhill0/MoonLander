@@ -1,11 +1,15 @@
 """Generate individuals from GP/ML."""
 
 import os
+from sys import argv
+from time import monotonic
 
 OUTPUTS = 'gp_outputs'
 TEMP = 'temp{}.txt'.format(os.getpid())
+TIME = int(argv[1])
 
 def main():
+    start = monotonic()
     if not os.path.exists(OUTPUTS):
         os.makedirs(OUTPUTS)
 
@@ -23,8 +27,15 @@ def main():
                 os.rename(TEMP, os.path.join(OUTPUTS, '{}.inp'.format(score)))
             print()
         except KeyboardInterrupt:
-            os.remove(TEMP)
             break
+
+        if (monotonic() > start + TIME):
+            break
+
+    try:
+        os.remove(TEMP)
+    except FileNotFoundError:
+        pass
 
 if __name__ == '__main__':
     main()
