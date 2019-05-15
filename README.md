@@ -27,3 +27,6 @@ Run the GUI game with `bin/GUIGame`, assuming that the working directory is
 the root of this repository.
 
 Run the ML with `bin/GP -o best.txt` to dump the best performace to `best.txt`.
+
+To save inputs to a file, use `bin/GUIGame -o file.inp`. To read inputs from a
+file, use `bin/GUIGame -i file.inp`. This can be used to run ML outputs.
