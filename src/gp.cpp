@@ -393,18 +393,6 @@ Individual *GP::searchLoop(vector<Individual *> p) {
 	sortPopulation(p);
 	sortPopulation(newPop);
 	
-	for (Individual *i : p) {
-	    cout << i -> fitness << endl;
-	}
-
-	cout << "---------------------------" << endl;
-	
-	for (Individual *i : newPop) {
-	    cout << i -> fitness << endl;
-	}
-
-	cout << "##########################" << endl;
-	
 	generationalReplacement(p, newPop);
 	
 	// p = newPop;
