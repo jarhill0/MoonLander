@@ -493,7 +493,6 @@ void GameGUI::drawFrame(GameState gs, InputState is) {
         int textX = (SCREEN_WIDTH - textSprite->getWidth()) / 2;
         int textY = (SCREEN_HEIGHT - textSprite->getHeight()) / 2;
         renderSprite(textSprite, textX, textY);
-        printf("Real score: %f\n", gs.score);
     } else if (!gameStarted) {
         int textX = (SCREEN_WIDTH - textSprite->getWidth()) / 2;
         int textY = (SCREEN_HEIGHT - textSprite->getHeight()) / 2;
