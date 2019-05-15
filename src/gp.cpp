@@ -412,8 +412,10 @@ Individual *GP::searchLoop(vector<Individual *> p) {
 
 	sortPopulation(p);
 
-	*bestEver = *p[0];
-	
+    if (p[0]->fitness > bestEver->fitness) {
+	    bestEver = p[0];
+    }
+
 	// cout << bestEver -> fitness << endl;
 
 	gen++;
@@ -422,7 +424,7 @@ Individual *GP::searchLoop(vector<Individual *> p) {
     return bestEver;
 }
 
-void GP::evaluatePopulation(vector<Individual *> p) {
+void GP::evaluatePopulation(vector<Individual *> &p) {
     for (Individual *ind : p) {
 	evaluate(ind);
     }

@@ -91,7 +91,7 @@ class GP {
 	vector<Individual *> tournamentSelection(vector<Individual *> p);
 	static void sortPopulation(vector<Individual *> &p);
 	void generationalReplacement(vector<Individual *> newPop, vector<Individual *> oldPop);
-        void evaluatePopulation(vector<Individual *> p);
+        void evaluatePopulation(vector<Individual *> &p);
 	Individual *searchLoop(vector<Individual *> p);
 };
 
