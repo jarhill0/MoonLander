@@ -6,4 +6,4 @@ In order to actually run valgrind correctly, modify the function usigned RandGen
 On GitHub, some commits managed to come from the account "tauqua". That is my (Ben S) personal account, and I have no idea why GitHub Desktop didn't use my @oberlin account, but that's who that is.
 
 
-OpenSans is created by Steve Matteson (https://fonts.google.com/specimen/Open+Sans) and licensed under the Apache 2.0 License (see LICENSE.txt)
+OpenSans is created by Steve Matteson (https://fonts.google.com/specimen/Open+Sans) and licensed under the Apache 2.0 License (see opensans-LICENSE.txt)
